@@ -1,25 +1,250 @@
 package com.suda.utils;
 
+import com.suda.pojo.MatchInfo;
+import com.suda.pojo.MatchUrl;
+import com.suda.web.HtmlAttr;
 import org.htmlparser.Node;
 import org.htmlparser.NodeFilter;
 import org.htmlparser.Parser;
-import org.htmlparser.filters.NodeClassFilter;
-import org.htmlparser.filters.OrFilter;
+import org.htmlparser.Tag;
+import org.htmlparser.Text;
+import org.htmlparser.filters.HasAttributeFilter;
+import org.htmlparser.filters.RegexFilter;
 import org.htmlparser.http.ConnectionManager;
 import org.htmlparser.lexer.Page;
-import org.htmlparser.tags.LinkTag;
-import org.htmlparser.util.NodeIterator;
 import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
 import org.htmlparser.util.SimpleNodeIterator;
+import org.htmlparser.visitors.NodeVisitor;
+import org.springframework.beans.factory.support.ManagedList;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by ES-BF-IT-126 on 2017/11/27.
  */
 public class HtmlParserTool {
+
+    /**
+     * 解析HTML
+     * 一级div : class=match_list
+     * 二级div : class=match_time,match_name,match_info,home_team,guest_team
+     * 三级div : class=home_logo,guest_logo
+     * 三级img : img
+     * @author:ES-BF-IT-126
+     * @method:filter
+     * @date:Date 2017/11/28
+     * @params:[urlStr]
+     * @returns:void
+     */
+    public List<MatchInfo> htmlParser(String urlStr) {
+        Parser parser = HtmlParserTool.getParserWithUrlConn2(urlStr, "utf-8");
+        NodeList nodelist;
+        ArrayList<MatchInfo> matchInfoArrayList = null;
+
+        try {
+            NodeFilter filter = new HasAttributeFilter("class","matches");//match_list
+            nodelist = parser.parse(filter);
+            if(nodelist.size() > 0){
+                Node node = nodelist.elementAt(0);
+                NodeList nodeList = node.getChildren();
+                nodeList = nodeList.extractAllNodesThatMatch(new HasAttributeFilter("class","match_list"));
+                Node[] nodes = nodeList.toNodeArray();
+                matchInfoArrayList = new ManagedList<MatchInfo>();
+                for(Node node1 : nodes){
+                    MatchInfo matchInfo = getMatchInfo(node1.getChildren());
+                    matchInfoArrayList.add(matchInfo);
+                }
+            }
+        } catch (ParserException e1) {
+            e1.printStackTrace();
+        }
+        return matchInfoArrayList;
+    }
+
+
+    private MatchInfo getMatchInfo(NodeList nodeList){
+        final MatchInfo matchInfo = new MatchInfo();
+        NodeVisitor visitor2 = new NodeVisitor(false, true) {
+            boolean filter = false;
+            String currentAttr = "";
+            //第一层
+            public void visitTag(Tag tag) {
+                String attr = tag.getAttribute("class");
+                if(StringUtil.isNotBlank(attr)){
+                    if(attr.equals(HtmlAttr.MATCH_TIME.getValue())){
+                        currentAttr = attr;
+                    }
+                    if(attr.equals(HtmlAttr.MATCH_NAME.getValue())){
+                        currentAttr = attr;
+                    }
+                    if(attr.equals(HtmlAttr.MATCH_INFO.getValue())){
+                        currentAttr = attr;
+                    }
+                    if(attr.equals(HtmlAttr.HOME_TEAM.getValue())){
+                        currentAttr = attr;
+                    }
+                    if(attr.equals(HtmlAttr.HOME_LOGO.getValue())){
+                        currentAttr = attr;
+                    }
+                    if(attr.equals(HtmlAttr.GUEST_TEAM.getValue())){
+                        currentAttr = attr;
+                    }
+                    if(attr.equals(HtmlAttr.GUEST_LOGO.getValue())){
+                        currentAttr = attr;
+                    }
+                }
+                //第二层
+                tag.accept(new NodeVisitor(true, true) {
+                    @Override
+                    public void visitTag(Tag tag) {
+                        String attr = tag.getAttribute("class");
+                        if(StringUtil.isNotBlank(attr)){
+                            if(attr.equals(HtmlAttr.HOME_TEAM.getValue())){
+                                currentAttr = attr;
+                            }
+                            if(attr.equals(HtmlAttr.GUEST_TEAM.getValue())){
+                                currentAttr = attr;
+                            }
+                            if(attr.equals(HtmlAttr.HOME_LOGO.getValue())){
+                                currentAttr = attr;
+                            }
+                            if(attr.equals(HtmlAttr.GUEST_LOGO.getValue())){
+                                currentAttr = attr;
+                            }
+                            if("A".equals(tag.getTagName())){
+                                matchInfo.setMatch_url(tag.getAttribute("href").trim());
+                                filter = true;
+                            }
+                        }
+                        //第三层
+                        tag.accept(new NodeVisitor(false, false) {
+                            @Override
+                            public void visitTag(Tag tag) {
+                                if("img".equals(tag.getRawTagName()) && currentAttr.equals(HtmlAttr.HOME_LOGO.getValue())){
+                                    matchInfo.setHome_logo_url(tag.getAttribute("src").trim());
+                                }
+                                if("img".equals(tag.getRawTagName()) && currentAttr.equals(HtmlAttr.GUEST_LOGO.getValue())){
+                                    matchInfo.setGuest_logo_url(tag.getAttribute("src").trim());
+                                }
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void visitStringNode(Text string) {
+                        //System.out.println("2");
+                        if(StringUtil.isNotBlank(string.getText()) && !filter){
+                            String attr = string.getText();
+                            if(currentAttr.equals(HtmlAttr.MATCH_TIME.getValue())){
+                                matchInfo.setMatch_time(attr.trim());
+                            }
+                            if(currentAttr.equals(HtmlAttr.MATCH_NAME.getValue())){
+                                matchInfo.setMatch_name(attr.trim());
+                            }
+                            if(currentAttr.equals(HtmlAttr.HOME_TEAM.getValue()) && !(attr.trim().equals("vs"))){
+                                matchInfo.setHome_team(attr.trim());
+                            }if(currentAttr.equals(HtmlAttr.GUEST_TEAM.getValue())){
+                                matchInfo.setGuest_team(attr.trim());
+                            }
+                        }
+                        filter = false;
+                    }
+                });
+            }
+        };
+
+        try {
+            nodeList.visitAllNodesWith(visitor2);
+        } catch (ParserException e) {
+            e.printStackTrace();
+        }
+
+        return matchInfo;
+    }
+
+    private MatchUrl getMatchUrl(Node node){
+        final MatchUrl matchUrl = new MatchUrl();
+
+        NodeVisitor visitor2 = new NodeVisitor(true, true) {
+            String patternExp = "player\\('(.*?)','(.*?)'\\)";
+            Pattern pattern = Pattern.compile(patternExp);
+            Matcher matcher = null;
+            String currentAttr = "";
+
+            //第一层
+            public void visitTag(Tag tag) {
+                if("p".equals(tag.getRawTagName())){
+                    if("active".equals(tag.getAttribute("class"))){
+                        matchUrl.setActive(true);
+                    }
+                    String playerValue = tag.getAttribute("onClick");
+                    if(StringUtil.isNotBlank(playerValue)){
+                        matcher = pattern.matcher(playerValue);
+                        int index = 0;
+                        while(matcher.lookingAt()){
+                            if(index != 0){
+                                switch (index){
+                                    case 1 : matchUrl.setPlayer(matcher.group(index));
+                                        break;
+                                    case 2 : matchUrl.setVid(matcher.group(index));
+                                        break;
+                                }
+                            }
+                            if(index > 1){
+                                break;
+                            }
+                            index++;
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void visitStringNode(Text string) {
+                matchUrl.setName(string.getText().trim());
+                System.out.println(string.getText().trim());
+//                /matchUrl.setName(string.getText());
+            }
+        };
+        node.accept(visitor2);
+        return matchUrl;
+    }
+
+
+    public List<MatchUrl> htmlParserVideo(String urlStr) {
+        Parser parser = HtmlParserTool.getParserWithUrlConn2(urlStr, "utf-8");
+        NodeList nodelist;
+        ArrayList<MatchUrl> matchUrlArrayList = null;
+
+        try {
+            NodeFilter filter = new HasAttributeFilter("class","signal");//match_list
+            nodelist = parser.parse(filter);
+            if(nodelist.size() > 0){
+                Node node = nodelist.elementAt(0);
+                NodeList nodeList = node.getChildren();
+                Node[] nodes = nodeList.toNodeArray();
+                matchUrlArrayList = new ArrayList<MatchUrl>();
+                for(Node node1 : nodes){
+                    if(StringUtil.isBlank(node1.toHtml())){
+                        continue;
+                    }
+                    MatchUrl matchUrl = getMatchUrl(node1);
+                    if(null != matchUrl){
+                        System.out.println(matchUrl.toString());
+                        matchUrlArrayList.add(matchUrl);
+                    }
+                }
+            }
+        } catch (ParserException e1) {
+            e1.printStackTrace();
+        }
+        return matchUrlArrayList;
+    }
+
     public static Parser getParserWithUrlConn2(String urlStr, String encoding) {
         Parser parser = null;
         try {
@@ -32,16 +257,6 @@ public class HtmlParserTool {
             return null;
         }
     }
-
-
-
-
-
-
-
-
-
-
 
     // 循环访问所有节点，输出包含关键字的值节点
     public static void extractKeyWordText(String url, String keyword) {
@@ -83,75 +298,11 @@ public class HtmlParserTool {
         }//end wile
     }
 
-
-    // 获取一个网站上的链接,filter 用来过滤链接
-    public static Set<String> extracLinks(String url,LinkFilter filter) {
-
-        Set<String> links = new HashSet<String>();
-        try {
-            Parser parser = new Parser(url);
-            parser.setEncoding("gb2312");
-            // 过滤 <frame >标签的 filter，用来提取 frame 标签里的 src 属性所表示的链接
-            NodeFilter frameFilter = new NodeFilter() {
-                public boolean accept(Node node) {
-                    if (node.getText().startsWith("frame src=")) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }
-            };
-            // OrFilter 来设置过滤 <a> 标签，和 <frame> 标签
-            OrFilter linkFilter = new OrFilter(new NodeClassFilter(
-                    LinkTag.class), frameFilter);
-            // 得到所有经过过滤的标签
-            NodeList list = parser.extractAllNodesThatMatch(linkFilter);
-            for (int i = 0; i < list.size(); i++) {
-                Node tag = list.elementAt(i);
-                if (tag instanceof LinkTag)// <a> 标签
-                {
-                    LinkTag link = (LinkTag) tag;
-                    String linkUrl = link.getLink();// url
-                    if(filter.accept(linkUrl))
-                        links.add(linkUrl);
-                } else// <frame> 标签
-                {
-                    // 提取 frame 里 src 属性的链接如 <frame src="test.html"/>
-                    String frame = tag.getText();
-                    int start = frame.indexOf("src=");
-                    frame = frame.substring(start);
-                    int end = frame.indexOf(" ");
-                    if (end == -1)
-                        end = frame.indexOf(">");
-                    String frameUrl = frame.substring(5, end - 1);
-                    if(filter.accept(frameUrl))
-                        links.add(frameUrl);
-                }
-            }
-        } catch (ParserException e) {
-            e.printStackTrace();
-        }
-        return links;
-    }
     //测试的 main 方法
-    public static void main(String[]args)
-    {
-//        Set<String> links = HtmlParserTool.extracLinks(
-//                "http://www.twt.edu.cn",new LinkFilter()
-//                {
-//                    //提取以 <a href="http://www.twt.edu.cn/"><code>http://www.twt.edu.cn</code></a> 开头的链接
-//                    public boolean accept(String url) {
-//                        if(url.startsWith("http://www.twt.edu.cn"))
-//                            return true;
-//                        else
-//                            return false;
-//                    }
-//
-//                });
-//        for(String link : links)
-//            System.out.println(link);
-
+    public static void main(String[] args) {
+        String urlStr = "http://m.leqiuba.cc//zhibo/517.html";
+        //Parser parser = HtmlParserTool.getParserWithUrlConn2(urlStr, "utf-8");
         HtmlParserTool htmlParserTool = new HtmlParserTool();
-        HtmlParserTool.extractKeyWordText("http://www.leqiuba.cc/zhibo/", "tab-cont");
+        htmlParserTool.htmlParserVideo(urlStr);
     }
 }
