@@ -121,6 +121,10 @@ public class VideoController {
                             jsonObject.put("guest_team_score", ((JSONObject)matchObject.get("matchInfo")).getString("leftGoal"));
                             jsonObject.put("match_quarter", ((JSONObject)matchObject.get("matchInfo")).getString("quarter"));
                             jsonObject.put("match_quarterTime", ((JSONObject)matchObject.get("matchInfo")).getString("quarterTime"));
+                            jsonObject.put("match_quarterTime", ((JSONObject)matchObject.get("matchInfo")).getString("quarterTime"));
+                            jsonObject.put("match_quarterTime", ((JSONObject)matchObject.get("matchInfo")).getString("quarterTime"));
+                            jsonObject.put("home_logo_url", ((JSONObject)matchObject.get("matchInfo")).getString("rightBadge"));
+                            jsonObject.put("guest_logo_url", ((JSONObject)matchObject.get("matchInfo")).getString("leftBadge"));
                         }
                     }
                 }
@@ -139,6 +143,8 @@ public class VideoController {
                             jsonObject.put("guest_team_score", ((JSONObject)matchObject.get("matchInfo")).getString("leftGoal"));
                             jsonObject.put("match_quarter", ((JSONObject)matchObject.get("matchInfo")).getString("quarter"));
                             jsonObject.put("match_quarterTime", ((JSONObject)matchObject.get("matchInfo")).getString("quarterTime"));
+                            jsonObject.put("home_logo_url", ((JSONObject)matchObject.get("matchInfo")).getString("rightBadge"));
+                            jsonObject.put("guest_logo_url", ((JSONObject)matchObject.get("matchInfo")).getString("leftBadge"));
                         }
                     }
                 }
@@ -146,8 +152,8 @@ public class VideoController {
                 jsonObject.put("match_name", matchInfo.getMatch_name());
                 jsonObject.put("home_team", matchInfo.getHome_team());
                 jsonObject.put("guest_team", matchInfo.getGuest_team());
-                jsonObject.put("home_logo_url", matchInfo.getHome_logo_url());
-                jsonObject.put("guest_logo_url", matchInfo.getGuest_logo_url());
+                //jsonObject.put("home_logo_url", matchInfo.getHome_logo_url());
+                //jsonObject.put("guest_logo_url", matchInfo.getGuest_logo_url());
                 jsonObject.put("match_url", matchInfo.getMatch_url());
                 System.out.println(jsonObject.toString());
                 jsonArray.add(jsonObject);
