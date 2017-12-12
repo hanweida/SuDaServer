@@ -99,7 +99,7 @@ public class VideoController {
 
         map.put("date", simpleDateFormat.format(todayDate));
         String todayStr = httpClientUtil.sendDataGet("http://sportsnba.qq.com/match/listByDate", map);
-        JSONObject todaymatchJsonObject = JSON.parseObject(str);
+        JSONObject todaymatchJsonObject = JSON.parseObject(todayStr);
         JSONArray todaymatchJsonArray = (JSONArray)(((JSONObject)todaymatchJsonObject.get("data")).get("matches"));
 
         JSONArray jsonArray = new JSONArray();
@@ -112,6 +112,7 @@ public class VideoController {
                         JSONObject matchObject = (JSONObject)matchJsonArray.get(i);
                         String leftName =((JSONObject)matchObject.get("matchInfo")).getString("leftName");
                         String rightName =((JSONObject)matchObject.get("matchInfo")).getString("rightName");
+                        String mid =((JSONObject)matchObject.get("matchInfo")).getString("mid");
                         leftName = CharacterConvert.unicodeToString(leftName);
                         rightName = CharacterConvert.unicodeToString(rightName);
                         if(leftName.contains(matchInfo.getGuest_team())
@@ -125,6 +126,8 @@ public class VideoController {
                             jsonObject.put("match_quarterTime", ((JSONObject)matchObject.get("matchInfo")).getString("quarterTime"));
                             jsonObject.put("home_logo_url", ((JSONObject)matchObject.get("matchInfo")).getString("rightBadge"));
                             jsonObject.put("guest_logo_url", ((JSONObject)matchObject.get("matchInfo")).getString("leftBadge"));
+                            jsonObject.put("match_desc", ((JSONObject)matchObject.get("matchInfo")).getString("matchDesc"));
+                            jsonObject.put("mid", mid);
                         }
                     }
                 }
@@ -134,6 +137,7 @@ public class VideoController {
                         JSONObject matchObject = (JSONObject)todaymatchJsonArray.get(i);
                         String leftName =((JSONObject)matchObject.get("matchInfo")).getString("leftName");
                         String rightName =((JSONObject)matchObject.get("matchInfo")).getString("rightName");
+                        String mid =((JSONObject)matchObject.get("matchInfo")).getString("mid");
                         leftName = CharacterConvert.unicodeToString(leftName);
                         rightName = CharacterConvert.unicodeToString(rightName);
                         if(leftName.contains(matchInfo.getGuest_team())
@@ -145,6 +149,8 @@ public class VideoController {
                             jsonObject.put("match_quarterTime", ((JSONObject)matchObject.get("matchInfo")).getString("quarterTime"));
                             jsonObject.put("home_logo_url", ((JSONObject)matchObject.get("matchInfo")).getString("rightBadge"));
                             jsonObject.put("guest_logo_url", ((JSONObject)matchObject.get("matchInfo")).getString("leftBadge"));
+                            jsonObject.put("match_desc", ((JSONObject)matchObject.get("matchInfo")).getString("matchDesc"));
+                            jsonObject.put("mid", mid);
                         }
                     }
                 }
