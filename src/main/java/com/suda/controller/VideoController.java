@@ -12,12 +12,12 @@ import com.suda.utils.StringUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -33,15 +33,37 @@ import java.util.Map;
 public class VideoController {
     @RequestMapping(value = "/geturl", method = {RequestMethod.GET})
     @ResponseBody
-    public ModelAndView getUrl(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse){
-        String match_url = httpServletRequest.getParameter("url");
+    public ModelAndView getUrl(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
+                               @RequestParam(value = "url") String match_url){
         if(StringUtil.isNotBlank(match_url)){
             match_url = match_url.replaceFirst("www","m");
         }
-
-        System.out.println(match_url);
+        //System.out.println(match_url);
+        //HTML解析
         HtmlParserTool htmlParserTool = new HtmlParserTool();
         List<MatchUrl> matchUrlList = htmlParserTool.htmlParserVideo(match_url);
+        Map map = new HashMap();
+        map.put("list", matchUrlList);
+        for(MatchUrl matchUrl : matchUrlList){
+            if(matchUrl.getActive()){
+                map.put("matchUrl", matchUrl);
+            }
+        }
+        return new ModelAndView("/biz/hello", map);
+    }
+
+    @RequestMapping(value = "/getnbaurl", method = {RequestMethod.GET})
+    @ResponseBody
+    public ModelAndView getNBAUrl(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
+                               @RequestParam(value = "url", defaultValue = "") String match_url, @RequestParam(value = "mid", defaultValue = "") String mid){
+        List<MatchUrl> matchUrlList = null;
+        if(StringUtil.isNotBlank(match_url) && StringUtil.isNotBlank(mid)){
+            match_url = match_url.replaceFirst("www","m");
+            HtmlParserTool htmlParserTool = new HtmlParserTool();
+            matchUrlList = htmlParserTool.htmlParserVideo(match_url);
+        }
+        //HTML解析
+
         Map map = new HashMap();
         map.put("list", matchUrlList);
         for(MatchUrl matchUrl : matchUrlList){
@@ -99,7 +121,7 @@ public class VideoController {
 
         map.put("date", simpleDateFormat.format(todayDate));
         String todayStr = httpClientUtil.sendDataGet("http://sportsnba.qq.com/match/listByDate", map);
-        JSONObject todaymatchJsonObject = JSON.parseObject(str);
+        JSONObject todaymatchJsonObject = JSON.parseObject(todayStr);
         JSONArray todaymatchJsonArray = (JSONArray)(((JSONObject)todaymatchJsonObject.get("data")).get("matches"));
 
         JSONArray jsonArray = new JSONArray();
@@ -112,6 +134,7 @@ public class VideoController {
                         JSONObject matchObject = (JSONObject)matchJsonArray.get(i);
                         String leftName =((JSONObject)matchObject.get("matchInfo")).getString("leftName");
                         String rightName =((JSONObject)matchObject.get("matchInfo")).getString("rightName");
+                        String mid =((JSONObject)matchObject.get("matchInfo")).getString("mid");
                         leftName = CharacterConvert.unicodeToString(leftName);
                         rightName = CharacterConvert.unicodeToString(rightName);
                         if(leftName.contains(matchInfo.getGuest_team())
@@ -125,6 +148,8 @@ public class VideoController {
                             jsonObject.put("match_quarterTime", ((JSONObject)matchObject.get("matchInfo")).getString("quarterTime"));
                             jsonObject.put("home_logo_url", ((JSONObject)matchObject.get("matchInfo")).getString("rightBadge"));
                             jsonObject.put("guest_logo_url", ((JSONObject)matchObject.get("matchInfo")).getString("leftBadge"));
+                            jsonObject.put("match_desc", ((JSONObject)matchObject.get("matchInfo")).getString("matchDesc"));
+                            jsonObject.put("mid", mid);
                         }
                     }
                 }
@@ -134,6 +159,7 @@ public class VideoController {
                         JSONObject matchObject = (JSONObject)todaymatchJsonArray.get(i);
                         String leftName =((JSONObject)matchObject.get("matchInfo")).getString("leftName");
                         String rightName =((JSONObject)matchObject.get("matchInfo")).getString("rightName");
+                        String mid =((JSONObject)matchObject.get("matchInfo")).getString("mid");
                         leftName = CharacterConvert.unicodeToString(leftName);
                         rightName = CharacterConvert.unicodeToString(rightName);
                         if(leftName.contains(matchInfo.getGuest_team())
@@ -145,6 +171,8 @@ public class VideoController {
                             jsonObject.put("match_quarterTime", ((JSONObject)matchObject.get("matchInfo")).getString("quarterTime"));
                             jsonObject.put("home_logo_url", ((JSONObject)matchObject.get("matchInfo")).getString("rightBadge"));
                             jsonObject.put("guest_logo_url", ((JSONObject)matchObject.get("matchInfo")).getString("leftBadge"));
+                            jsonObject.put("match_desc", ((JSONObject)matchObject.get("matchInfo")).getString("matchDesc"));
+                            jsonObject.put("mid", mid);
                         }
                     }
                 }
