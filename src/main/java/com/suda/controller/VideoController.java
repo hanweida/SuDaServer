@@ -12,12 +12,12 @@ import com.suda.utils.StringUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -33,15 +33,37 @@ import java.util.Map;
 public class VideoController {
     @RequestMapping(value = "/geturl", method = {RequestMethod.GET})
     @ResponseBody
-    public ModelAndView getUrl(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse){
-        String match_url = httpServletRequest.getParameter("url");
+    public ModelAndView getUrl(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
+                               @RequestParam(value = "url") String match_url){
         if(StringUtil.isNotBlank(match_url)){
             match_url = match_url.replaceFirst("www","m");
         }
-
-        System.out.println(match_url);
+        //System.out.println(match_url);
+        //HTML解析
         HtmlParserTool htmlParserTool = new HtmlParserTool();
         List<MatchUrl> matchUrlList = htmlParserTool.htmlParserVideo(match_url);
+        Map map = new HashMap();
+        map.put("list", matchUrlList);
+        for(MatchUrl matchUrl : matchUrlList){
+            if(matchUrl.getActive()){
+                map.put("matchUrl", matchUrl);
+            }
+        }
+        return new ModelAndView("/biz/hello", map);
+    }
+
+    @RequestMapping(value = "/getnbaurl", method = {RequestMethod.GET})
+    @ResponseBody
+    public ModelAndView getNBAUrl(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
+                               @RequestParam(value = "url", defaultValue = "") String match_url, @RequestParam(value = "mid", defaultValue = "") String mid){
+        List<MatchUrl> matchUrlList = null;
+        if(StringUtil.isNotBlank(match_url) && StringUtil.isNotBlank(mid)){
+            match_url = match_url.replaceFirst("www","m");
+            HtmlParserTool htmlParserTool = new HtmlParserTool();
+            matchUrlList = htmlParserTool.htmlParserVideo(match_url);
+        }
+        //HTML解析
+
         Map map = new HashMap();
         map.put("list", matchUrlList);
         for(MatchUrl matchUrl : matchUrlList){

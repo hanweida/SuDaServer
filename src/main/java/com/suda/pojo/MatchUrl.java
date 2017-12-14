@@ -4,9 +4,10 @@ package com.suda.pojo;
  * Created by ES-BF-IT-126 on 2017/11/30.
  */
 public class MatchUrl {
-    public String player;
-    public String vid;
-    public String name;
+    private String player;
+    private String vid;
+    private String name;
+    //
     public boolean active;
 
     public boolean getActive() {
