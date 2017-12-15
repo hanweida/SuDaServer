@@ -7,7 +7,9 @@ import com.suda.pojo.MatchInfo;
 import com.suda.pojo.MatchUrl;
 import com.suda.utils.CharacterConvert;
 import com.suda.utils.HtmlParserTool;
+import com.suda.utils.HtmlPaser;
 import com.suda.utils.HttpClientUtil;
+import com.suda.utils.JsoupUtils;
 import com.suda.utils.StringUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,9 +37,9 @@ public class VideoController {
     @ResponseBody
     public ModelAndView getUrl(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
                                @RequestParam(value = "url") String match_url){
-        if(StringUtil.isNotBlank(match_url)){
-            match_url = match_url.replaceFirst("www","m");
-        }
+//        if(StringUtil.isNotBlank(match_url)){
+//            match_url = match_url.replaceFirst("www","m");
+//        }
         //System.out.println(match_url);
         //HTML解析
         HtmlParserTool htmlParserTool = new HtmlParserTool();
@@ -58,7 +60,7 @@ public class VideoController {
                                @RequestParam(value = "url", defaultValue = "") String match_url, @RequestParam(value = "mid", defaultValue = "") String mid){
         List<MatchUrl> matchUrlList = null;
         if(StringUtil.isNotBlank(match_url) && StringUtil.isNotBlank(mid)){
-            match_url = match_url.replaceFirst("www","m");
+            //match_url = match_url.replaceFirst("www","m");
             HtmlParserTool htmlParserTool = new HtmlParserTool();
             matchUrlList = htmlParserTool.htmlParserVideo(match_url);
         }
@@ -77,8 +79,11 @@ public class VideoController {
     @RequestMapping(value = "/gamelist", method = {RequestMethod.GET})
     @ResponseBody
     public JSONArray getGameList(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse){
-        HtmlParserTool htmlParserTool = new HtmlParserTool();
-        List<MatchInfo> matchInfoList = htmlParserTool.htmlParser("http://www.leqiuba.cc");
+        String baseUrl = "http://www.kuwantiyu.com";
+        HttpClientUtil httpClientUtil = new HttpClientUtil();
+        String html = httpClientUtil.sendDataGet(baseUrl);
+        HtmlPaser htmlPaser = new JsoupUtils();
+        List<MatchInfo> matchInfoList = htmlPaser.paserHtml(html, baseUrl);
         JSONArray jsonArray = new JSONArray();
         JSONObject jsonObject = null;
         for(MatchInfo matchInfo : matchInfoList){

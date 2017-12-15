@@ -11,6 +11,15 @@ public class MatchInfo {
     public String home_logo_url;
     public String guest_logo_url;
     public String match_url;
+    public String base_url;
+
+    public String getBase_url() {
+        return base_url;
+    }
+
+    public void setBase_url(String base_url) {
+        this.base_url = base_url;
+    }
 
     public String getMatch_url() {
         return match_url;

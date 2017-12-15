@@ -3,6 +3,7 @@ package com.suda.utils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
@@ -11,7 +12,10 @@ import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
+
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -128,6 +132,66 @@ public class HttpClientUtil {
 		return text;
 	}
 
+
+	public String sendGet(String url) throws IOException {
+		HttpClient httpClient = new HttpClient();
+		httpClient.getParams().setContentCharset("utf-8");
+		GetMethod getMethod = null;
+		getMethod = new GetMethod(url);
+		List<Header> headers = new ArrayList<Header>();
+		Header header = new Header();
+		header.setName("Accept");
+		header.setValue("text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+		headers.add(header);
+		Header header2 = new Header();
+		header2.setName("Accept-Encoding");
+		header2.setValue("gzip, deflate, sdch");
+		headers.add(header2);
+
+		Header header3 = new Header();
+		header3.setName("Connection");
+		header3.setValue("keep-alive");
+		headers.add(header3);
+
+//		Header header4 = new Header();
+//		header4.setName("Cache-Control");
+//		header4.setValue("max-age=0");
+//		headers.add(header4);
+
+		/*Header header5 = new Header();
+		header5.setName("Upgrade-Insecure-Requests");
+		header5.setValue("1");
+		headers.add(header5);*/
+
+		Header header6 = new Header();
+		header6.setName("User-Agent");
+		header6.setValue("Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.76 Mobile Safari/537.36");
+		headers.add(header6);
+
+		Header header7 = new Header();
+		header7.setName("Accept-Language");
+		header7.setValue("zh-CN,zh;q=0.8");
+		headers.add(header7);
+
+			 Header header8 = new Header();
+			 header8.setName("Cookie");
+			 header8.setValue("__cfduid=d3f909d1d577bd9921cc6c1e609e9f8061508979408; UM_distinctid=15f562e801b0-03feb63200578c-5e1c3513-13c680-15f562e801cf7; PHPSESSID=ss3ag4r023208s4fvoo6r2i1k4; a1800_pages=19; a1800_times=12; __tins__19291800=%7B%22sid%22%3A%201513307942423%2C%20%22vd%22%3A%201%2C%20%22expires%22%3A%201513309742423%7D; __51cke__=; __51laig__=19; CNZZDATA1264605686=1555870955-1508977521-%7C1513307000; Hm_lvt_af0cc1060196e78360bd49de46d9b704=1513301859; Hm_lpvt_af0cc1060196e78360bd49de46d9b704=1513307943");
+			 headers.add(header8);
+
+		/*Header header9 = new Header();
+		header9.setName("Content-Length");
+		header9.setValue(" 2");
+		headers.add(header9);*/
+
+		httpClient.getHostConfiguration().getParams().setParameter("http.default-headers", headers);
+		getMethod.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler());
+		int code = httpClient.executeMethod(getMethod);
+		byte[] responseBody = getMethod.getResponseBody();
+		System.out.println(new String(responseBody));
+				 return  new String(responseBody);
+
+	}
+
 	public String sendDataGet(String url, Map<String,String> dataMap){
 		 GetMethod getMethod = null;
 		 String text = "";
@@ -138,14 +202,12 @@ public class HttpClientUtil {
 			MultiThreadedHttpConnectionManager defaultManager = new MultiThreadedHttpConnectionManager();
 			httpClient = new org.apache.commons.httpclient.HttpClient(defaultManager);
 			HttpConnectionManagerParams params = defaultManager.getParams();
-			params.setMaxTotalConnections(10000);
-			params.setConnectionTimeout(0);
-			params.setSoTimeout(0);
-			httpClient.getParams().setConnectionManagerTimeout(0);
-			httpClient.getParams().setSoTimeout(0);
-			httpClient.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
-			httpClient.getParams().setContentCharset("utf-8");
 			List<Header> headers = new ArrayList<Header>();
+			headers.add(new Header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"));
+			headers.add(new Header("Connection", "keep-alive"));
+			headers.add(new Header("Cache-Control", "max-age=0"));
+			headers.add(new Header("Upgrade-Insecure-Requests", "1"));
+			headers.add(new Header("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.76 Mobile Safari/537.36"));
 			httpClient.getHostConfiguration().getParams().setParameter("http.default-headers", headers);
 			int code = httpClient.executeMethod(getMethod);
 			text = getMethod.getResponseBodyAsString();
@@ -156,6 +218,35 @@ public class HttpClientUtil {
 				getMethod.releaseConnection();
 			}
 		  }
+		return text;
+	}
+
+	public String sendDataGet(String url){
+		GetMethod getMethod = null;
+		String text = "";
+		try{
+			url = initGetData(url, new HashMap<String, String>());
+			getMethod = new GetMethod(url);
+			HttpClient httpClient;
+			MultiThreadedHttpConnectionManager defaultManager = new MultiThreadedHttpConnectionManager();
+			httpClient = new org.apache.commons.httpclient.HttpClient(defaultManager);
+			HttpConnectionManagerParams params = defaultManager.getParams();
+			List<Header> headers = new ArrayList<Header>();
+			headers.add(new Header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"));
+			headers.add(new Header("Connection", "keep-alive"));
+			headers.add(new Header("Cache-Control", "max-age=0"));
+			headers.add(new Header("Upgrade-Insecure-Requests", "1"));
+			headers.add(new Header("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.76 Mobile Safari/537.36"));
+			httpClient.getHostConfiguration().getParams().setParameter("http.default-headers", headers);
+			int code = httpClient.executeMethod(getMethod);
+			text = getMethod.getResponseBodyAsString();
+		}
+		catch(Exception e){
+		}finally{
+			if (getMethod != null) {
+				getMethod.releaseConnection();
+			}
+		}
 		return text;
 	}
 
@@ -207,24 +298,29 @@ public class HttpClientUtil {
 		calendar.add(Calendar.DAY_OF_YEAR, 1);
 		Date date1 = calendar.getTime();
 		//System.out.println(simpleDateFormat.format(date));;
-		map.put("date", simpleDateFormat.format(date1));
-		map.put("appver", "1.0.2.2");
-		map.put("appvid", "1.0.2.2");
-		map.put("network", "wifi");
-		String str = httpClientUtil.sendDataGet("http://sportsnba.qq.com/match/listByDate", map);
-		System.out.println(str);
-		JSONObject jsonObject = JSON.parseObject(str);
+//		map.put("date", simpleDateFormat.format(date1));
+//		map.put("appver", "1.0.2.2");
+//		map.put("appvid", "1.0.2.2");
+//		map.put("network", "wifi");
+
+
+		String str = null;
+			str = httpClientUtil.sendDataGet("http://www.kuwantiyu.com/", map);
+			System.out.println(str);
+
+
+		//JSONObject jsonObject = JSON.parseObject(str);
 
 		//System.out.println(simpleDateFormat.format(date1));
 		//System.out.println(jsonObject.get("code"));
 
-		try {
-			byte[] bytes = "\\u516c\\u725b".getBytes("Unicode");
-			String strs = new String(bytes, "UTF-8");
-
-			System.out.println(CharacterConvert.unicodeToString("\u516c\u725b"));
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			byte[] bytes = "\\u516c\\u725b".getBytes("Unicode");
+//			String strs = new String(bytes, "UTF-8");
+//
+//			System.out.println(CharacterConvert.unicodeToString("\u516c\u725b"));
+//		} catch (UnsupportedEncodingException e) {
+//			e.printStackTrace();
+//		}
 	}
 }

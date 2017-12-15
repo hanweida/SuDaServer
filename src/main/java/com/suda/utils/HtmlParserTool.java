@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 /**
  * Created by ES-BF-IT-126 on 2017/11/27.
  */
-public class HtmlParserTool {
+public class HtmlParserTool implements HtmlPaser{
 
     /**
      * 解析HTML
@@ -304,5 +304,9 @@ public class HtmlParserTool {
         //Parser parser = HtmlParserTool.getParserWithUrlConn2(urlStr, "utf-8");
         HtmlParserTool htmlParserTool = new HtmlParserTool();
         htmlParserTool.htmlParserVideo(urlStr);
+    }
+
+    public List<MatchInfo> paserHtml(String html, String baseUrl) {
+        return htmlParser(html);
     }
 }
