@@ -4,6 +4,7 @@ import com.google.gson.JsonParser;
 import com.suda.http.api.RequestCallBack;
 import com.suda.http.bean.match.MatchStat;
 import com.suda.http.okhttp.OkHttpHelper;
+import com.suda.http.utils.JsonParserPojo;
 import com.suda.utils.StringUtil;
 import com.suda.web.Constants;
 import okhttp3.ResponseBody;
@@ -39,8 +40,9 @@ public class TencentService {
         try {
             Response<String> response = call.execute();
             if(response.code() == 200){
-                JsonParser jsonParser = new JsonParser();
-                cbk.onSuccess(new MatchStat());
+                JsonParserPojo jsonParserPojo = new JsonParserPojo();
+                MatchStat matchStat = JsonParserPojo.parseWithGson(MatchStat.class, response.body());
+                cbk.onSuccess(matchStat);
             } else {
                 cbk.onFailure(response.message());
             }
