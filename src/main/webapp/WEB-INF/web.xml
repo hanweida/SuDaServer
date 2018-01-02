@@ -38,6 +38,20 @@
     <servlet-name>spring-biz</servlet-name>
     <url-pattern>*.biz</url-pattern>
   </servlet-mapping>
+  <!--拦截.data-->
+  <servlet>
+    <servlet-name>spring-data</servlet-name>
+    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    <init-param>
+      <param-name>contextConfigLocation</param-name>
+      <param-value>classpath*:sys/spring-mvc-data.xml</param-value>
+    </init-param>
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>spring-data</servlet-name>
+    <url-pattern>*.data</url-pattern>
+  </servlet-mapping>
 
   <!--过滤器-->
   <filter>

@@ -1,8 +1,9 @@
-package com.suda.controller;
+package com.suda.controller.biz;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.google.gson.Gson;
 import com.suda.pojo.MatchInfo;
 import com.suda.pojo.MatchUrl;
 import com.suda.utils.CharacterConvert;
@@ -122,75 +123,47 @@ public class VideoController {
         map.put("network", "wifi");
         String str = httpClientUtil.sendDataGet("http://sportsnba.qq.com/match/listByDate", map);
         JSONObject matchJsonObject = JSON.parseObject(str);
-        JSONArray matchJsonArray = (JSONArray)(((JSONObject)matchJsonObject.get("data")).get("matches"));
+        JSONArray tomorrowmatchJsonArray = (JSONArray)(((JSONObject)matchJsonObject.get("data")).get("matches"));
 
         map.put("date", simpleDateFormat.format(todayDate));
+        //比赛列表：http://sportsnba.qq.com/match/listByDate?date=2017-12-08&appver=1.0.2.2&appvid=1.0.2.2&network=wifi
         String todayStr = httpClientUtil.sendDataGet("http://sportsnba.qq.com/match/listByDate", map);
         JSONObject todaymatchJsonObject = JSON.parseObject(todayStr);
         JSONArray todaymatchJsonArray = (JSONArray)(((JSONObject)todaymatchJsonObject.get("data")).get("matches"));
 
         JSONArray jsonArray = new JSONArray();
         JSONObject jsonObject = null;
-        for(MatchInfo matchInfo : matchInfoList){
-            if(matchInfo.getMatch_name().contains("NBA")){
-                jsonObject = new JSONObject();
-                if(matchJsonArray.size() > 0){
-                    for(int i=0; i<matchJsonArray.size(); i++){
-                        JSONObject matchObject = (JSONObject)matchJsonArray.get(i);
-                        String leftName =((JSONObject)matchObject.get("matchInfo")).getString("leftName");
-                        String rightName =((JSONObject)matchObject.get("matchInfo")).getString("rightName");
-                        String mid =((JSONObject)matchObject.get("matchInfo")).getString("mid");
-                        leftName = CharacterConvert.unicodeToString(leftName);
-                        rightName = CharacterConvert.unicodeToString(rightName);
-                        if(leftName.contains(matchInfo.getGuest_team())
-                                && rightName.contains(matchInfo.getHome_team()
-                                )){
-                            jsonObject.put("home_team_score", ((JSONObject)matchObject.get("matchInfo")).getString("rightGoal"));
-                            jsonObject.put("guest_team_score", ((JSONObject)matchObject.get("matchInfo")).getString("leftGoal"));
-                            jsonObject.put("match_quarter", ((JSONObject)matchObject.get("matchInfo")).getString("quarter"));
-                            jsonObject.put("match_quarterTime", ((JSONObject)matchObject.get("matchInfo")).getString("quarterTime"));
-                            jsonObject.put("match_quarterTime", ((JSONObject)matchObject.get("matchInfo")).getString("quarterTime"));
-                            jsonObject.put("match_quarterTime", ((JSONObject)matchObject.get("matchInfo")).getString("quarterTime"));
-                            jsonObject.put("home_logo_url", ((JSONObject)matchObject.get("matchInfo")).getString("rightBadge"));
-                            jsonObject.put("guest_logo_url", ((JSONObject)matchObject.get("matchInfo")).getString("leftBadge"));
-                            jsonObject.put("match_desc", ((JSONObject)matchObject.get("matchInfo")).getString("matchDesc"));
-                            jsonObject.put("mid", mid);
-                        }
-                    }
-                }
+        for(int i=0; i<todaymatchJsonArray.size(); i++){
+            jsonObject = new JSONObject();
+            JSONObject matchObject = (JSONObject)todaymatchJsonArray.get(i);
+            String leftName =((JSONObject)matchObject.get("matchInfo")).getString("leftName");
+            String rightName =((JSONObject)matchObject.get("matchInfo")).getString("rightName");
+            String mid =((JSONObject)matchObject.get("matchInfo")).getString("mid");
+            leftName = CharacterConvert.unicodeToString(leftName);
+            rightName = CharacterConvert.unicodeToString(rightName);
+            jsonObject.put("home_team", rightName);
+            jsonObject.put("guest_team", leftName);
+            jsonObject.put("home_team_score", ((JSONObject)matchObject.get("matchInfo")).getString("rightGoal"));
+            jsonObject.put("guest_team_score", ((JSONObject)matchObject.get("matchInfo")).getString("leftGoal"));
+            jsonObject.put("match_quarter", ((JSONObject)matchObject.get("matchInfo")).getString("quarter"));
+            jsonObject.put("match_quarterTime", ((JSONObject)matchObject.get("matchInfo")).getString("quarterTime"));
+            jsonObject.put("home_logo_url", ((JSONObject)matchObject.get("matchInfo")).getString("rightBadge"));
+            jsonObject.put("guest_logo_url", ((JSONObject)matchObject.get("matchInfo")).getString("leftBadge"));
+            jsonObject.put("match_desc", ((JSONObject)matchObject.get("matchInfo")).getString("matchDesc"));
+            jsonObject.put("mid", mid);
 
-                if(todaymatchJsonArray.size() > 0){
-                    for(int i=0; i<todaymatchJsonArray.size(); i++){
-                        JSONObject matchObject = (JSONObject)todaymatchJsonArray.get(i);
-                        String leftName =((JSONObject)matchObject.get("matchInfo")).getString("leftName");
-                        String rightName =((JSONObject)matchObject.get("matchInfo")).getString("rightName");
-                        String mid =((JSONObject)matchObject.get("matchInfo")).getString("mid");
-                        leftName = CharacterConvert.unicodeToString(leftName);
-                        rightName = CharacterConvert.unicodeToString(rightName);
-                        if(leftName.contains(matchInfo.getGuest_team())
-                                && rightName.contains(matchInfo.getHome_team()
-                        )){
-                            jsonObject.put("home_team_score", ((JSONObject)matchObject.get("matchInfo")).getString("rightGoal"));
-                            jsonObject.put("guest_team_score", ((JSONObject)matchObject.get("matchInfo")).getString("leftGoal"));
-                            jsonObject.put("match_quarter", ((JSONObject)matchObject.get("matchInfo")).getString("quarter"));
-                            jsonObject.put("match_quarterTime", ((JSONObject)matchObject.get("matchInfo")).getString("quarterTime"));
-                            jsonObject.put("home_logo_url", ((JSONObject)matchObject.get("matchInfo")).getString("rightBadge"));
-                            jsonObject.put("guest_logo_url", ((JSONObject)matchObject.get("matchInfo")).getString("leftBadge"));
-                            jsonObject.put("match_desc", ((JSONObject)matchObject.get("matchInfo")).getString("matchDesc"));
-                            jsonObject.put("mid", mid);
-                        }
+            for(MatchInfo matchInfo : matchInfoList){
+                if(matchInfo.getMatch_name().contains("NBA")){
+                    if(leftName.contains(matchInfo.getGuest_team())
+                            && rightName.contains(matchInfo.getHome_team()
+                    )){
+                        jsonObject.put("match_url", matchInfo.getMatch_url());
+                        jsonObject.put("match_time", matchInfo.getMatch_time());
+                        jsonObject.put("match_name", matchInfo.getMatch_name());
                     }
                 }
-                jsonObject.put("match_time", matchInfo.getMatch_time());
-                jsonObject.put("match_name", matchInfo.getMatch_name());
-                jsonObject.put("home_team", matchInfo.getHome_team());
-                jsonObject.put("guest_team", matchInfo.getGuest_team());
-                //jsonObject.put("home_logo_url", matchInfo.getHome_logo_url());
-                //jsonObject.put("guest_logo_url", matchInfo.getGuest_logo_url());
-                jsonObject.put("match_url", matchInfo.getMatch_url());
-                System.out.println(jsonObject.toString());
-                jsonArray.add(jsonObject);
             }
+            jsonArray.add(jsonObject);
         }
         return jsonArray;
     }

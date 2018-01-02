@@ -10,9 +10,11 @@ import org.junit.Test;
  * Created by ES-BF-IT-126 on 2017/12/28.
  */
 public class TestHttp {
+    TencentService tencentService = new TencentService();
     @Test
     public void TencentService() throws InterruptedException {
-        TencentService.getMatchStat("100000:1470662", "2", new RequestCallBack<MatchStat>() {
+
+        tencentService.getMatchStat("100000:1470662", "2", new RequestCallBack<MatchStat>() {
             public void onSuccess(MatchStat matchStat) {
                 System.out.println(matchStat.toString());
             }
@@ -24,7 +26,7 @@ public class TestHttp {
 
     @Test
     public void TencentParse() throws InterruptedException {
-        TencentService.getMatchStat("100000:1470662", "2", new RequestCallBack<MatchStat>() {
+        tencentService.getMatchStat("100000:1470662", "2", new RequestCallBack<MatchStat>() {
             public void onSuccess(MatchStat matchStat) {
 
                 Gson gson = new Gson();

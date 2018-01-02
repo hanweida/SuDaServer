@@ -35,7 +35,7 @@ public class TencentService {
      * @params:[mid, tableType, cbk]
      * @returns:void
      */
-    public static void getMatchStat(String mid, String tableType, final RequestCallBack<MatchStat> cbk){
+    public void getMatchStat(String mid, String tableType, final RequestCallBack<MatchStat> cbk){
         Call<String> call = tencentApi.getMatchStat(mid, tableType);
         try {
             Response<String> response = call.execute();
