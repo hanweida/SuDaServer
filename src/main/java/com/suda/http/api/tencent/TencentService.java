@@ -1,12 +1,14 @@
 package com.suda.http.api.tencent;
 
 import com.google.gson.JsonParser;
+import com.suda.http.api.BaseService;
 import com.suda.http.api.RequestCallBack;
+import com.suda.http.bean.hupu.news.HuPuNewsList;
 import com.suda.http.bean.match.MatchStat;
 import com.suda.http.okhttp.OkHttpHelper;
 import com.suda.http.utils.JsonParserPojo;
 import com.suda.utils.StringUtil;
-import com.suda.web.Constants;
+import com.suda.http.constant.Constants;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -20,7 +22,7 @@ import java.io.IOException;
 /**
  * Created by ES-BF-IT-126 on 2017/12/14.
  */
-public class TencentService {
+public class TencentService extends BaseService {
     static Retrofit retrofit = new Retrofit.Builder().baseUrl(Constants.TENTCENTAPI)
             .addConverterFactory(ScalarsConverterFactory.create())
             .client(OkHttpHelper.getTecentClient())
@@ -37,18 +39,6 @@ public class TencentService {
      */
     public void getMatchStat(String mid, String tableType, final RequestCallBack<MatchStat> cbk){
         Call<String> call = tencentApi.getMatchStat(mid, tableType);
-        try {
-            Response<String> response = call.execute();
-            if(response.code() == 200){
-                JsonParserPojo jsonParserPojo = new JsonParserPojo();
-                MatchStat matchStat = JsonParserPojo.parseWithGson(MatchStat.class, response.body());
-                cbk.onSuccess(matchStat);
-            } else {
-                cbk.onFailure(response.message());
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        super.requestCall(call, MatchStat.class, cbk);
     }
-
 }
