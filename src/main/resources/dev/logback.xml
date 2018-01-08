@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>   
+<configuration>
+    <!-- 日志目录 -->
+    <property name="LOG_HOME" value="d:/data/log1" />
+       
+    <!-- 控制台输出 -->   
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">   
+       <Encoding>UTF-8</Encoding>   
+        <layout class="ch.qos.logback.classic.PatternLayout">   
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+        </layout>   
+    </appender>
+
+    <appender name="error" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <Encoding>UTF-8</Encoding>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${LOG_HOME}/error.log.%d{yyyyMMdd}</FileNamePattern>
+        </rollingPolicy>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{50} %-5class{50} %-5line - %msg%n</pattern>
+        </layout>
+    </appender>
+
+    <appender name="info" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <Encoding>UTF-8</Encoding>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${LOG_HOME}/info.log.%d{yyyyMMdd}</FileNamePattern>
+        </rollingPolicy>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{50} %-5class{50} - %msg%n
+            </pattern>
+        </layout>
+    </appender>
+
+    <!--日志引用-->
+    <logger name="error" level="DEBUG" additivity="false">
+        <appender-ref ref="error" />
+        <appender-ref ref="STDOUT" />
+    </logger>
+    <logger name="info" level="DEBUG" additivity="false">
+        <appender-ref ref="info" />
+        <appender-ref ref="STDOUT" />
+    </logger>
+
+    <root level="ERROR">
+        <appender-ref ref="STDOUT" />   
+    </root>   
+</configuration>

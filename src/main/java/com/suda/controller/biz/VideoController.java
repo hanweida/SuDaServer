@@ -11,7 +11,9 @@ import com.suda.utils.HtmlParserTool;
 import com.suda.utils.HtmlPaser;
 import com.suda.utils.HttpClientUtil;
 import com.suda.utils.JsoupUtils;
+import com.suda.utils.LogUtil;
 import com.suda.utils.StringUtil;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -80,6 +82,8 @@ public class VideoController {
     @RequestMapping(value = "/gamelist", method = {RequestMethod.GET})
     @ResponseBody
     public JSONArray getGameList(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse){
+        Logger logger = LogUtil.getInfoLog();
+        logger.info("Test Info Log");
         String baseUrl = "http://www.kuwantiyu.com";
         HttpClientUtil httpClientUtil = new HttpClientUtil();
         String html = httpClientUtil.sendDataGet(baseUrl);
@@ -101,7 +105,7 @@ public class VideoController {
         return jsonArray;
     }
 
-    @RequestMapping(value = "/gameNBAlist", method = {RequestMethod.GET})
+    @RequestMapping(value = "/gamenbalist", method = {RequestMethod.GET})
     @ResponseBody
     public JSONArray getGameNBAList(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse){
         HtmlParserTool htmlParserTool = new HtmlParserTool();
