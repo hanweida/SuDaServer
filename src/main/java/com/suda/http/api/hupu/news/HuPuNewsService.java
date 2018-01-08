@@ -50,8 +50,9 @@ public class HuPuNewsService extends BaseService{
      * @throws IOException
      */
     public void getNewsDetailSchema(String nid, final RequestCallBack<HuPuNewsDetail> cbk) throws IOException {
-        Map<String, String> params = RequestHelper.getRequestNewsMap();
-        Call<String> call = huPuNewsApi.getNewsDetailSchema(nid, params);
+        Map<String, String> params = RequestHelper.getRequestNewsMap(nid, System.currentTimeMillis());
+        String sign = RequestHelper.getRequestSign(params);
+        Call<String> call = huPuNewsApi.getNewsDetailSchema(nid, sign, params);
         requestCall(call, HuPuNewsDetail.class, cbk);
     }
 }

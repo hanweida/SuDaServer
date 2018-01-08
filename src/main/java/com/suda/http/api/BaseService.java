@@ -19,6 +19,7 @@ public abstract class BaseService<T extends Object>{
         try {
             response = call.execute();
             if(response.code() == 200){
+                System.out.println(response.body());
                 T list = (T)JsonParserPojo.parseWithGson(clz, response.body());
                 cbk.onSuccess(list);
             } else {

@@ -20,21 +20,30 @@ public class RequestHelper {
         return map;
     }
 
-    public static HashMap<String, String> getRequestNewsMap(){
+    public static HashMap<String, String> getRequestNewsMap(String nid, long crt){
         HashMap<String, String> map = new HashMap<String, String>();
-        map.put("crt", "1512110779367");
-        map.put("client", "990009265068844");
+        map.put("nid", nid);
+        map.put("client",  Constants.deviceId);
+        //以下是非必须参数
+        map.put("crt", crt+"");
         map.put("night", "0");
         map.put("channel", "hupucom");
-        map.put("cate_type", "news");
         map.put("nopic", "0");
-        map.put("ft", "18");
-        map.put("top_ncid", "-1");
-        map.put("replies", "7");
-        map.put("entrance", "1");
-        map.put("android_id", "19341a43dbd6eb60");
-        map.put("sign", "860772258ca733974bd1a989f8969bc0");
         map.put("time_zone", "Asia/Shanghai");
+        map.put("cate_type", "news");
+        //以下是非必须参数
+//        map.put("sign", "860772258ca733974bd1a989f8969bc0");
+//        map.put("crt", crt+"");
+//        map.put("night", "0");
+//        map.put("channel", "hupucom");
+//        map.put("nopic", "0");
+//        map.put("time_zone", "Asia/Shanghai");
+//        map.put("cate_type", "news");
+//        map.put("ft", "18");
+//        map.put("top_ncid", "-1");
+//        map.put("replies", "7");
+//        map.put("entrance", "1");
+//        map.put("android_id", "19341a43dbd6eb60");
         return map;
     }
 
