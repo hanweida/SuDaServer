@@ -4,6 +4,7 @@ import com.suda.http.api.BaseService;
 import com.suda.http.api.RequestCallBack;
 import com.suda.http.bean.hupu.news.HuPuNewsDetail;
 import com.suda.http.bean.hupu.news.HuPuNewsList;
+import com.suda.http.bean.hupu.news.HuPuNewsReply;
 import com.suda.http.bean.match.MatchStat;
 import com.suda.http.constant.Constants;
 import com.suda.http.okhttp.OkHttpHelper;
@@ -54,5 +55,18 @@ public class HuPuNewsService extends BaseService{
         String sign = RequestHelper.getRequestSign(params);
         Call<String> call = huPuNewsApi.getNewsDetailSchema(nid, sign, params);
         requestCall(call, HuPuNewsDetail.class, cbk);
+    }
+
+    /**
+     * getNewsDetailSchema
+     * 获得虎扑新闻数据
+     * @param cbk
+     * @throws IOException
+     */
+    public void getNewsDetailRepli(String nid, final RequestCallBack<HuPuNewsReply> cbk) throws IOException {
+        Map<String, String> params = RequestHelper.getRequestNewsMap(nid, System.currentTimeMillis());
+        String sign = RequestHelper.getRequestSign(params);
+        Call<String> call = huPuNewsApi.getNewsDetailRepli(nid, sign, params);
+        requestCall(call, HuPuNewsReply.class, cbk);
     }
 }

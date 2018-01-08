@@ -18,4 +18,7 @@ public interface HuPuNewsApi {
     @GET("nba/getNewsDetailSchema")
     Call<String> getNewsDetailSchema(@Query("nid") String nid, @Query("sign") String sign,  @QueryMap Map<String, String> params);
 
+    @GET("news/getCommentH5")
+    Call<String> getNewsDetailRepli(@Query("nid") String nid, @Query("sign") String sign,  @QueryMap Map<String, String> params);
+
 }

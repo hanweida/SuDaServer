@@ -6,6 +6,7 @@ import com.suda.http.api.hupu.news.HuPuNewsService;
 import com.suda.http.api.tencent.TencentService;
 import com.suda.http.bean.hupu.news.HuPuNewsDetail;
 import com.suda.http.bean.hupu.news.HuPuNewsList;
+import com.suda.http.bean.hupu.news.HuPuNewsReply;
 import com.suda.http.bean.match.MatchList;
 import com.suda.http.bean.match.MatchStat;
 import org.junit.Test;
@@ -95,6 +96,25 @@ public class TestHttp {
                     Gson gson = new Gson();
                     System.out.println(gson.toJson(huPuNewsDetail));
                 }
+                public void onFailure(String message) {
+
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testHupuNewsRpli(){
+        HuPuNewsService huPuNewsService = new HuPuNewsService();
+        try {
+            huPuNewsService.getNewsDetailRepli("2231928", new RequestCallBack<HuPuNewsReply>() {
+                public void onSuccess(HuPuNewsReply huPuNewsReply) {
+                    Gson gson = new Gson();
+                    System.out.println(gson.toJson(huPuNewsReply));
+                }
+
                 public void onFailure(String message) {
 
                 }
