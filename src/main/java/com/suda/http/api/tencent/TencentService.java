@@ -39,6 +39,6 @@ public class TencentService extends BaseService {
      */
     public void getMatchStat(String mid, String tableType, final RequestCallBack<MatchStat> cbk){
         Call<String> call = tencentApi.getMatchStat(mid, tableType);
-        super.requestCall(call, MatchStat.class, cbk);
+        requestCall(call, MatchStat.class, cbk);
     }
 }

@@ -32,6 +32,6 @@ public class HuPuNewsService extends BaseService{
             Map<String, String> params = RequestHelper.getRequestMap();
             String sign = RequestHelper.getRequestSign(params);
             Call<String> call = huPuNewsApi.getHuPuNewsList(sign, params);
-            super.requestCall(call, HuPuNewsList.class, cbk);
+            requestCall(call, HuPuNewsList.class, cbk);
     }
 }

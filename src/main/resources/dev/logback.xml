@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>   
-<configuration>   
+<configuration>
+    <!-- 日志目录 -->
     <property name="LOG_HOME" value="d:/data/log1" />
        
     <!-- 控制台输出 -->   
@@ -8,39 +9,6 @@
         <layout class="ch.qos.logback.classic.PatternLayout">   
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
         </layout>   
-    </appender>
-
-     <appender name="druid" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <Encoding>UTF-8</Encoding>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">   
-            <FileNamePattern>${LOG_HOME}/druid.log.%d{yyyyMMdd}</FileNamePattern>
-            <!-- 超过30天的备份文件会被删除 -->
-            <MaxHistory>30</MaxHistory>   
-        </rollingPolicy>   
-        <layout class="ch.qos.logback.classic.PatternLayout">   
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
-       </layout>
-    </appender>
-
-    <appender name="charge" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <Encoding>UTF-8</Encoding>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>${LOG_HOME}/charge.log.%d{yyyyMMdd}</FileNamePattern>
-        </rollingPolicy>
-        <layout class="ch.qos.logback.classic.PatternLayout">
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
-            <!--<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{50} %-5class{50} %-5line - %msg%n</pattern>-->
-        </layout>
-    </appender>
-
-    <appender name="security" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <Encoding>UTF-8</Encoding>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>${LOG_HOME}/security.log.%d{yyyyMMdd}</FileNamePattern>
-        </rollingPolicy>
-        <layout class="ch.qos.logback.classic.PatternLayout">
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{50} %-5class{50} %-5line - %msg%n</pattern>
-        </layout>
     </appender>
 
     <appender name="error" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -64,39 +32,13 @@
         </layout>
     </appender>
 
-    <appender name="admin" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <Encoding>UTF-8</Encoding>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>${LOG_HOME}/admin.log.%d{yyyyMMdd}</FileNamePattern>
-        </rollingPolicy>
-        <layout class="ch.qos.logback.classic.PatternLayout">
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{50} %-5class{50} - %msg%n
-            </pattern>
-        </layout>
-    </appender>
-
-    <logger name="druid" level="DEBUG" additivity="false">
-        <appender-ref ref="druid" />
-        <appender-ref ref="STDOUT" />
-    </logger>
+    <!--日志引用-->
     <logger name="error" level="DEBUG" additivity="false">
         <appender-ref ref="error" />
         <appender-ref ref="STDOUT" />
     </logger>
     <logger name="info" level="DEBUG" additivity="false">
         <appender-ref ref="info" />
-        <appender-ref ref="STDOUT" />
-    </logger>
-    <logger name="security" level="DEBUG" additivity="false">
-        <appender-ref ref="security" />
-        <appender-ref ref="STDOUT" />
-    </logger>
-    <logger name="charge" level="DEBUG" additivity="false">
-        <appender-ref ref="charge" />
-        <appender-ref ref="STDOUT" />
-    </logger>
-    <logger name="admin" level="DEBUG" additivity="false">
-        <appender-ref ref="admin" />
         <appender-ref ref="STDOUT" />
     </logger>
 
