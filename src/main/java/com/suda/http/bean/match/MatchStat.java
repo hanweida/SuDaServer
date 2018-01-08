@@ -29,7 +29,7 @@ public class MatchStat extends Base {
         public String quarterDesc;
     }
 
-    public static class     MatchStats implements Serializable{
+    public static class MatchStats implements Serializable{
         public String type;
         public String text;
 

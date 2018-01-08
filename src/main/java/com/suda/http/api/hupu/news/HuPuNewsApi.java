@@ -12,6 +12,10 @@ import java.util.Map;
  * Created by ES-BF-IT-126 on 2018/1/5.
  */
 public interface HuPuNewsApi {
-    @GET("/nba/getNews")
+    @GET("nba/getNews")
     Call<String> getHuPuNewsList(@Query("sign") String sign, @QueryMap Map<String, String> params);
+
+    @GET("nba/getNewsDetailSchema")
+    Call<String> getNewsDetailSchema(@Query("nid") String nid, @QueryMap Map<String, String> params);
+
 }

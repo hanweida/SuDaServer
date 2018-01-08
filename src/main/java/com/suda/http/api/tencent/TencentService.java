@@ -4,6 +4,7 @@ import com.google.gson.JsonParser;
 import com.suda.http.api.BaseService;
 import com.suda.http.api.RequestCallBack;
 import com.suda.http.bean.hupu.news.HuPuNewsList;
+import com.suda.http.bean.match.MatchList;
 import com.suda.http.bean.match.MatchStat;
 import com.suda.http.okhttp.OkHttpHelper;
 import com.suda.http.utils.JsonParserPojo;
@@ -41,4 +42,30 @@ public class TencentService extends BaseService {
         Call<String> call = tencentApi.getMatchStat(mid, tableType);
         requestCall(call, MatchStat.class, cbk);
     }
+
+    /**
+     *
+     * @author:ES-BF-IT-126
+     * @method:listByDate
+     * @date:Date 2017/12/14
+     * @params:[mid, tableType, cbk]
+     * @returns:void
+     */
+    public void listByDate(String date, final RequestCallBack<MatchList> cbk){
+        Call<String> call = tencentApi.listByDate(date);
+        requestCall(call, MatchList.class, cbk);
+    }
+
+    /**
+     *
+     * @author:ES-BF-IT-126
+     * @method:getMatchStat
+     * @date:Date 2017/12/14
+     * @params:[mid, tableType, cbk]
+     * @returns:void
+     */
+//    public void getMatchStat(String mid, String tableType, final RequestCallBack<MatchStat> cbk){
+//        Call<String> call = tencentApi.getMatchStat(mid, tableType);
+//        requestCall(call, MatchStat.class, cbk);
+//    }
 }

@@ -4,7 +4,9 @@ import com.google.gson.Gson;
 import com.suda.http.api.RequestCallBack;
 import com.suda.http.api.hupu.news.HuPuNewsService;
 import com.suda.http.api.tencent.TencentService;
+import com.suda.http.bean.hupu.news.HuPuNewsDetail;
 import com.suda.http.bean.hupu.news.HuPuNewsList;
+import com.suda.http.bean.match.MatchList;
 import com.suda.http.bean.match.MatchStat;
 import org.junit.Test;
 
@@ -45,6 +47,20 @@ public class TestHttp {
     }
 
     @Test
+    public void TencentMatchList() throws InterruptedException {
+        tencentService.listByDate("2018-01-09", new RequestCallBack<MatchList>() {
+            public void onSuccess(MatchList matchList) {
+                Gson gson = new Gson();
+                System.out.println(gson.toJson(matchList));
+            }
+
+            public void onFailure(String message) {
+                System.out.println(message);
+            }
+        });
+    }
+
+    @Test
     public void test(){
         Map map = new HashMap<Integer,Integer>();
         map.put(1,"dfdf");
@@ -61,6 +77,24 @@ public class TestHttp {
                     System.out.println(gson.toJson(huPuNewsList));
                 }
 
+                public void onFailure(String message) {
+
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testHupuNewsSchma(){
+        HuPuNewsService huPuNewsService = new HuPuNewsService();
+        try {
+            huPuNewsService.getNewsDetailSchema("2231928", new RequestCallBack<HuPuNewsDetail>() {
+                public void onSuccess(HuPuNewsDetail huPuNewsDetail) {
+                    Gson gson = new Gson();
+                    System.out.println(gson.toJson(huPuNewsDetail));
+                }
                 public void onFailure(String message) {
 
                 }
