@@ -44,6 +44,7 @@ public class VideoController {
 //            match_url = match_url.replaceFirst("www","m");
 //        }
         //System.out.println(match_url);
+        //System.out.println(match_url);
         //HTML解析
         HtmlParserTool htmlParserTool = new HtmlParserTool();
         List<MatchUrl> matchUrlList = htmlParserTool.htmlParserVideo(match_url);
