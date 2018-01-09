@@ -106,7 +106,7 @@ public class VideoController {
         return jsonArray;
     }
 
-    @RequestMapping(value = "/gamenbalist", method = {RequestMethod.GET})
+    @RequestMapping(value = "/gameNBAlist", method = {RequestMethod.GET})
     @ResponseBody
     public JSONArray getGameNBAList(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse){
         HtmlParserTool htmlParserTool = new HtmlParserTool();
