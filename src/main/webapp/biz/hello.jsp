@@ -15,12 +15,12 @@
     <meta HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
     <meta HTTP-EQUIV="Expires" CONTENT="0">
     <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <script type="text/javascript">document.write("<s" + "cript type='text/javascript' src='http://m.kanbisai.tv/js/play.js?" + Math.random() + "'></s" + "cript>");</script>
+    <%--<script src="http://www.kuwantiyu.com/static/play.js?v=dd82d58268453ca1c56996aa87e97fca" type="text/javascript" charset="utf-8"></script>--%>
     <script src="https://cdn.bootcss.com/jquery/1.8.3/jquery.min.js" charset="utf-8"></script>
-    <!--<script src="/static/pc/js/fbi.js" charset="utf-8"></script>-->
-    <script type="text/javascript">
-        document.write("<s" + "cript type='text/javascript' src='http://m.leqiuba.cc/js/play.js?" + Math.random() + "'></s" + "cript>");
-    </script>
+    <script src="/static/biz/player.js" charset="utf-8"></script>
+    <%--<script type="text/javascript">--%>
+        <%--document.write("<s" + "cript type='text/javascript' src='http://m.leqiuba.cc/js/play.js?" + Math.random() + "'></s" + "cript>");--%>
+    <%--</script>--%>
     <style type="text/css">
         .container .main .wrap .title{
             height: 90px;
@@ -50,11 +50,6 @@
             <div><font>速达体育</font></div>
         </div>
             <div id="showplayer">
-                <c:forEach items="${list}" var="item" varStatus="stat">
-                    <c:if test="${item.active}">
-                        <script type="text/javascript">player('${item.player}','${item.vid}');</script>
-                    </c:if>
-                </c:forEach>
             </div>
         </div>
         <div class="signal">
@@ -73,11 +68,13 @@
 </div>
 </div>
 </div>
-
 </body>
+
 <script type="text/javascript">
     $(function () {
         player('${matchUrl.player}','${matchUrl.vid}');
+        //alert("dd");
+        //player('ys','MkEuAwyaNnDzgh4i');
     });
 </script>
 
