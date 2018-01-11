@@ -63,18 +63,17 @@ public class VideoController {
     public ModelAndView getNBAUrl(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
                                @RequestParam(value = "url", defaultValue = "") String match_url, @RequestParam(value = "mid", defaultValue = "") String mid){
         List<MatchUrl> matchUrlList = null;
-        if(StringUtil.isNotBlank(match_url) && StringUtil.isNotBlank(mid)){
+        Map map = new HashMap();
+        if(StringUtil.isNotBlank(match_url) && StringUtil.isNotBlank(mid)  && !"undefined".equals(match_url)){
             //match_url = match_url.replaceFirst("www","m");
             HtmlParserTool htmlParserTool = new HtmlParserTool();
             matchUrlList = htmlParserTool.htmlParserVideo(match_url);
-        }
-        //HTML解析
-
-        Map map = new HashMap();
-        map.put("list", matchUrlList);
-        for(MatchUrl matchUrl : matchUrlList){
-            if(matchUrl.getActive()){
-                map.put("matchUrl", matchUrl);
+            //HTML解析
+            map.put("list", matchUrlList);
+            for(MatchUrl matchUrl : matchUrlList){
+                if(matchUrl.getActive()){
+                    map.put("matchUrl", matchUrl);
+                }
             }
         }
         return new ModelAndView("/biz/hello", map);
@@ -109,10 +108,12 @@ public class VideoController {
     @RequestMapping(value = "/gamenbalist", method = {RequestMethod.GET})
     @ResponseBody
     public JSONArray getGameNBAList(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse){
-        HtmlParserTool htmlParserTool = new HtmlParserTool();
-        List<MatchInfo> matchInfoList = htmlParserTool.htmlParser("http://www.leqiuba.cc");
-
+        String baseUrl = "http://www.kuwantiyu.com";
         HttpClientUtil httpClientUtil = new HttpClientUtil();
+        String html = httpClientUtil.sendDataGet(baseUrl);
+        HtmlPaser htmlPaser = new JsoupUtils();
+        List<MatchInfo> matchInfoList = htmlPaser.paserHtml(html, baseUrl);
+
         Map<String, String> map = new HashMap<String, String>();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Calendar calendar = Calendar.getInstance();
