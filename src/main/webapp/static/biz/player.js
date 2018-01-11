@@ -1,3 +1,14 @@
+var ua = navigator.userAgent,
+    iframe_height;
+var ipad = ua.match(/(iPad).*OS\s([\d_]+)/),
+    isIphone = !ipad && ua.match(/(iPhone\sOS)\s([\d_]+)/),
+    isAndroid = ua.match(/(Android)\s+([\d.]+)/),
+    isMobile = isIphone || isAndroid;
+if (isMobile) {
+    iframe_height = "200px"
+} else {
+    iframe_height = "450px"
+}
 
 function player(player, vid) {
     switch (player) {
