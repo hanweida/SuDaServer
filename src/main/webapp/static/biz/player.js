@@ -31,7 +31,7 @@ function player(player, vid) {
             document.getElementById('showplayer').innerHTML = "<iframe id='video' width='100%' height='" + iframe_height + "' frameborder='0' src='http://api.kuwanzhibo.com?s=cctv5&id=" + vid + "' allowfullscreen></iframe>";
             break;
         case 'longzhu':
-            var l_url = isMobile ? "https://1.kuwantiyu.com": 'http://api.kuwanzhibo.com';
+            var l_url = isMobile ? "https://1.kuwantiyu.com": 'http://api.kuwanzhibo.com';                        z
             document.getElementById('showplayer').innerHTML = "<iframe id='video' width='100%' height='" + iframe_height + "' frameborder='0' src='" + l_url + "?s=longzhu&id=" + vid + "' allowfullscreen></iframe>";
             break
         case 'url':
@@ -59,6 +59,5 @@ function player(player, vid) {
             $(this).addClass("active").siblings().removeClass("active");
         });
     });
-
 }
 

@@ -12,7 +12,9 @@ import com.suda.utils.HtmlPaser;
 import com.suda.utils.HttpClientUtil;
 import com.suda.utils.JsoupUtils;
 import com.suda.utils.LogUtil;
+import com.suda.utils.PropertiesUtil;
 import com.suda.utils.StringUtil;
+import com.suda.web.enum_const.LiveSource;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,6 +38,9 @@ import java.util.Map;
 @Controller
 @RequestMapping(value="/video")
 public class VideoController {
+    final String kuwan_url = PropertiesUtil.getProperties("kuwan_url");
+    final String didiaokan_url = PropertiesUtil.getProperties("didiaokan_url");
+
     @RequestMapping(value = "/geturl", method = {RequestMethod.GET})
     @ResponseBody
     public ModelAndView getUrl(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
@@ -88,7 +93,7 @@ public class VideoController {
         HttpClientUtil httpClientUtil = new HttpClientUtil();
         String html = httpClientUtil.sendDataGet(baseUrl);
         HtmlPaser htmlPaser = new JsoupUtils();
-        List<MatchInfo> matchInfoList = htmlPaser.paserHtml(html, baseUrl);
+        List<MatchInfo> matchInfoList = htmlPaser.paserHtml(html, baseUrl, LiveSource.KUWAN_Source);
         JSONArray jsonArray = new JSONArray();
         JSONObject jsonObject = null;
         for(MatchInfo matchInfo : matchInfoList){
@@ -108,15 +113,19 @@ public class VideoController {
     @RequestMapping(value = "/gamenbalist", method = {RequestMethod.GET})
     @ResponseBody
     public JSONArray getGameNBAList(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse){
-        String baseUrl = "http://www.kuwantiyu.com";
         HttpClientUtil httpClientUtil = new HttpClientUtil();
-        String html = httpClientUtil.sendDataGet(baseUrl);
         HtmlPaser htmlPaser = new JsoupUtils();
-        List<MatchInfo> matchInfoList = htmlPaser.paserHtml(html, baseUrl);
-
         Map<String, String> map = new HashMap<String, String>();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Calendar calendar = Calendar.getInstance();
+
+        //酷玩直播源信息
+        String kuwan_html = httpClientUtil.sendDataGet(kuwan_url);
+        List<MatchInfo> kuwan_matchInfoList = htmlPaser.paserHtml(kuwan_html, kuwan_url, LiveSource.KUWAN_Source);
+        //didiaokan直播源信息
+        String didiaokan_html = httpClientUtil.sendDataGet(didiaokan_url);
+        List<MatchInfo> didiaokan_matchInfoList = htmlPaser.paserHtml(didiaokan_html, didiaokan_url, LiveSource.DIDIAOKAN_Source);
+
         calendar.setTime(new Date());
         Date todayDate = calendar.getTime();
         calendar.add(Calendar.DAY_OF_YEAR, 1);
@@ -158,7 +167,7 @@ public class VideoController {
             jsonObject.put("match_desc", ((JSONObject)matchObject.get("matchInfo")).getString("matchDesc"));
             jsonObject.put("mid", mid);
 
-            for(MatchInfo matchInfo : matchInfoList){
+            for(MatchInfo matchInfo : kuwan_matchInfoList){
                 if(matchInfo.getMatch_name().contains("NBA")){
                     if(leftName.contains(matchInfo.getGuest_team())
                             && rightName.contains(matchInfo.getHome_team()
@@ -173,4 +182,8 @@ public class VideoController {
         }
         return jsonArray;
     }
+
+
+
+
 }

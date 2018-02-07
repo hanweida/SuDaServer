@@ -1,6 +1,7 @@
 package com.suda.utils;
 
 import com.suda.pojo.MatchInfo;
+import com.suda.web.enum_const.LiveSource;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -35,7 +36,7 @@ public class JsoupUtils implements HtmlPaser {
         return matchInfo;
     }
 
-    private List<MatchInfo> jsoupParse(String html, String baseUrl){
+    private List<MatchInfo> kuwanJsoupParse(String html, String baseUrl){
         List<MatchInfo> matchInfoList = new ArrayList<MatchInfo>();
         Document document = Jsoup.parse(html);
         Elements elements = document.getElementsByAttributeValue("class", "game-list");
@@ -69,7 +70,40 @@ public class JsoupUtils implements HtmlPaser {
         }
         return matchInfoList;
     }
+    private List<MatchInfo> didiaoJsoupParse(String html, String baseUrl){
+        List<MatchInfo> matchInfoList = new ArrayList<MatchInfo>();
+        Document document = Jsoup.parse(html);
+        Elements elements = document.getElementsByAttributeValue("class", "game-list");
+        if(elements.size() > 0){
+            Element game_list_element = elements.get(0);
+            Elements a_elements = game_list_element.getElementsByTag("a");
+            if(a_elements.size() > 0){
+                Iterator<Element> elementIterator = a_elements.iterator();
+                while (elementIterator.hasNext()){
+                    MatchInfo matchInfo = new MatchInfo();
+                    matchInfo.setBase_url(baseUrl);
+                    Element a_element = elementIterator.next();
+                    String href = a_element.attr("href");
+                    matchInfo.setMatch_url(baseUrl+href);
+                    //客队
+                    parseTeamInfo(a_element.getElementsByAttributeValue("class", "team-left"), matchInfo, 0);
+                    //主队
+                    parseTeamInfo(a_element.getElementsByAttributeValue("class", "team-right"), matchInfo, 1);
 
+                    String match_name = a_element.getElementsByAttributeValue("class", "type").text();
+                    String match_time = a_element.getElementsByAttributeValue("class", "time").text();
+                    matchInfo.setMatch_name(match_name);
+                    matchInfo.setMatch_time(match_time);
+                    matchInfoList.add(matchInfo);
+                }
+            } else {
+                System.out.println("No Tag a");
+            }
+        } else {
+            System.out.println("No class=game-list");
+        }
+        return matchInfoList;
+    }
     public static void main(String[] args) {
         String html = "\n" +
                 "<!doctype html>\n" +
@@ -401,12 +435,25 @@ public class JsoupUtils implements HtmlPaser {
                 "</body>\n" +
                 "</html>";
         JsoupUtils jsoupUtils = new JsoupUtils();
-        List<MatchInfo> matchInfoList = jsoupUtils.jsoupParse(html, "http://www.kuwantiyu.com");
+        List<MatchInfo> matchInfoList = jsoupUtils.kuwanJsoupParse(html, "http://www.kuwantiyu.com");
         System.out.println();
     }
 
-    public List<MatchInfo> paserHtml(String html, String baseUrl) {
-        List<MatchInfo> matchInfoList = jsoupParse(html, baseUrl);
+    /**
+     * 解析html页面，根据直播源枚举类型，分别解析页面
+     * @author:ES-BF-IT-126
+     * @method:paserHtml
+     * @date:Date 2018/2/7
+     * @params:[html, baseUrl, liveSource]
+     * @returns:java.util.List<com.suda.pojo.MatchInfo>
+     */
+    public List<MatchInfo> paserHtml(String html, String baseUrl, LiveSource liveSource) {
+        List<MatchInfo> matchInfoList = null;
+        switch (liveSource){
+            case KUWAN_Source: matchInfoList=kuwanJsoupParse(html, baseUrl);break;
+            case DIDIAOKAN_Source: matchInfoList=didiaoJsoupParse(html, baseUrl);break;
+            default:break;
+        }
         return matchInfoList;
     }
 }

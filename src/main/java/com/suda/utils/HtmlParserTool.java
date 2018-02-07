@@ -3,6 +3,7 @@ package com.suda.utils;
 import com.suda.pojo.MatchInfo;
 import com.suda.pojo.MatchUrl;
 import com.suda.web.HtmlAttr;
+import com.suda.web.enum_const.LiveSource;
 import org.htmlparser.Node;
 import org.htmlparser.NodeFilter;
 import org.htmlparser.Parser;
@@ -307,6 +308,11 @@ public class HtmlParserTool implements HtmlPaser{
     }
 
     public List<MatchInfo> paserHtml(String html, String baseUrl) {
+        return htmlParser(html);
+    }
+
+    @Override
+    public List<MatchInfo> paserHtml(String html, String baseUrl, LiveSource liveSource) {
         return htmlParser(html);
     }
 }

@@ -22,7 +22,6 @@
         <context:include-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
         <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
     </context:component-scan>
-
     <!-- 系统资源文件映射 如果直接通过javabean取需要打开Component 自动注解-->
     <util:properties id="sys" location="classpath:sys.properties"/>
 
