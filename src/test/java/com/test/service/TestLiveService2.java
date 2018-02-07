@@ -35,7 +35,6 @@ public class TestLiveService2 {
     public void testLiveService(){
         ContextHolder.getInstance().setApplicationContext(ctx);
         ContextHolder.getInstance().setLocal(Locale.getDefault());
-
         List<Date> dateList = new ArrayList<Date>();
         Date date = new Date();
         dateList.add(date);
