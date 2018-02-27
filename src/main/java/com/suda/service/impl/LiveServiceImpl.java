@@ -29,10 +29,6 @@ import static com.suda.web.enum_const.LiveSource.KUWAN_Source;
  */
 @Service
 public class LiveServiceImpl extends BaseService implements LiveService {
-
-    @Value("${kuwan_url}")
-    private String kuwan_url;
-
     final HttpClientUtil httpClientUtil = new HttpClientUtil();
 
     @Override
@@ -103,10 +99,20 @@ public class LiveServiceImpl extends BaseService implements LiveService {
         return jsonArray;
     }
 
+    /**
+     * 根据直播源获得直播数据
+     * @author:weida
+     * @method:getMatchInfoList
+     * @date:Date 2018/2/27
+     * @params:[liveSource]
+     * @returns:java.util.List<com.suda.pojo.MatchInfo>
+     */
     private List<MatchInfo> getMatchInfoList(LiveSource liveSource){
-       // String kuwan_url = PropertiesUtil.getProperties("kuwan_url");
-        String didiaokan_url = new PropertiesUtil().getProperties("didiaokan_url");
-        String leqiuba_url = new PropertiesUtil().getProperties("leqiuba_url");
+        PropertiesUtil properties = new PropertiesUtil();
+        String kuwan_url = properties.getProperties("kuwan_url");
+        String didiaokan_url = properties.getProperties("didiaokan_url");
+        String leqiuba_url = properties.getProperties("leqiuba_url");
+
         HtmlPaser htmlPaser = new JsoupUtils();
         String url = "";
         switch (liveSource){

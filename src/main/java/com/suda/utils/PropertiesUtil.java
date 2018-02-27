@@ -28,12 +28,18 @@ public class PropertiesUtil {
         return new PropertySourcesPlaceholderConfigurer();
     }
 
+    /**
+     * 通过实体注解注入
+     * @author:ES-BF-IT-126
+     * @method:mongoTemplate
+     * @date:Date 2018/2/27
+     * @params:[]
+     * @returns:com.suda.pojo.MatchInfo
+     */
     @Bean
     public MatchInfo mongoTemplate() throws Exception {
-
         String mongodbUrl = env.getProperty("kuwan_url");
         String defaultDb = env.getProperty("kuwan_url");
-
         return new MatchInfo();
 
     }
@@ -70,7 +76,7 @@ public class PropertiesUtil {
      * @param key
      * @return
      */
-    public String getProperties(String key) {
+    public  String getProperties(String key) {
         try {
             String value = env.getProperty(key);
             return (value != null && !value.equals("") ? value : null);
