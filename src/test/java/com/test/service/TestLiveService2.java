@@ -2,12 +2,15 @@ package com.test.service;
 
 import com.suda.service.LiveService;
 import com.suda.service.impl.LiveServiceImpl;
+import com.suda.utils.PropertiesUtil;
 import com.suda.web.ContextHolder;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.Environment;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -30,9 +33,15 @@ public class TestLiveService2 {
 
     @Autowired
     private  LiveService liveServiceImpl;
+    @Autowired
+    private Environment env;
 
     @Test
     public void testLiveService(){
+        //ystem.out.println(new PropertiesUtil().getProperties("kuwan_url"));
+        System.out.println(env.getProperty("kuwan_url"));
+
+
         ContextHolder.getInstance().setApplicationContext(ctx);
         ContextHolder.getInstance().setLocal(Locale.getDefault());
         List<Date> dateList = new ArrayList<Date>();

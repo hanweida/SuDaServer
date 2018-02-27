@@ -38,8 +38,6 @@ import java.util.Map;
 @Controller
 @RequestMapping(value="/video")
 public class VideoController {
-    final String kuwan_url = PropertiesUtil.getProperties("kuwan_url");
-    final String didiaokan_url = PropertiesUtil.getProperties("didiaokan_url");
 
     @RequestMapping(value = "/geturl", method = {RequestMethod.GET})
     @ResponseBody
@@ -120,12 +118,13 @@ public class VideoController {
         Calendar calendar = Calendar.getInstance();
 
         //酷玩直播源信息
-        String kuwan_html = httpClientUtil.sendDataGet(kuwan_url);
-        List<MatchInfo> kuwan_matchInfoList = htmlPaser.paserHtml(kuwan_html, kuwan_url, LiveSource.KUWAN_Source);
+        //String kuwan_html = httpClientUtil.sendDataGet(kuwan_url);
+        //List<MatchInfo> kuwan_matchInfoList = htmlPaser.paserHtml(kuwan_html, kuwan_url, LiveSource.KUWAN_Source);
         //didiaokan直播源信息
-        String didiaokan_html = httpClientUtil.sendDataGet(didiaokan_url);
-        List<MatchInfo> didiaokan_matchInfoList = htmlPaser.paserHtml(didiaokan_html, didiaokan_url, LiveSource.DIDIAOKAN_Source);
+        //String didiaokan_html = httpClientUtil.sendDataGet(didiaokan_url);
+        //List<MatchInfo> didiaokan_matchInfoList = htmlPaser.paserHtml(didiaokan_html, didiaokan_url, LiveSource.DIDIAOKAN_Source);
 
+        List<MatchInfo> kuwan_matchInfoList = null;
         calendar.setTime(new Date());
         Date todayDate = calendar.getTime();
         calendar.add(Calendar.DAY_OF_YEAR, 1);
@@ -154,6 +153,7 @@ public class VideoController {
             String leftName =((JSONObject)matchObject.get("matchInfo")).getString("leftName");
             String rightName =((JSONObject)matchObject.get("matchInfo")).getString("rightName");
             String mid =((JSONObject)matchObject.get("matchInfo")).getString("mid");
+            String startTime =((JSONObject)matchObject.get("matchInfo")).getString("startTime");
             leftName = CharacterConvert.unicodeToString(leftName);
             rightName = CharacterConvert.unicodeToString(rightName);
             jsonObject.put("home_team", rightName);
@@ -166,6 +166,7 @@ public class VideoController {
             jsonObject.put("guest_logo_url", ((JSONObject)matchObject.get("matchInfo")).getString("leftBadge"));
             jsonObject.put("match_desc", ((JSONObject)matchObject.get("matchInfo")).getString("matchDesc"));
             jsonObject.put("mid", mid);
+            jsonObject.put("start_time", startTime);
 
             for(MatchInfo matchInfo : kuwan_matchInfoList){
                 if(matchInfo.getMatch_name().contains("NBA")){

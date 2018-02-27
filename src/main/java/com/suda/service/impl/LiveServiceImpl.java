@@ -12,6 +12,7 @@ import com.suda.utils.JsoupUtils;
 import com.suda.utils.PropertiesUtil;
 import com.suda.utils.StringUtil;
 import com.suda.web.enum_const.LiveSource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
@@ -29,21 +30,21 @@ import static com.suda.web.enum_const.LiveSource.KUWAN_Source;
 @Service
 public class LiveServiceImpl extends BaseService implements LiveService {
 
-    final String kuwan_url = PropertiesUtil.getProperties("kuwan_url");
-    final String didiaokan_url = PropertiesUtil.getProperties("didiaokan_url");
-    final String leqiuba_url = PropertiesUtil.getProperties("leqiuba_url");
+    @Value("${kuwan_url}")
+    private String kuwan_url;
+
     final HttpClientUtil httpClientUtil = new HttpClientUtil();
 
     @Override
     public JSONArray getMatchInfo(List<Date> date) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<String, String>(16);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Calendar calendar = Calendar.getInstance();
 
         //酷玩直播源信息
-        List<MatchInfo> kuwan_matchInfoList = getMatchInfoList(KUWAN_Source);
-        //didiaokan直播源信息
-        List<MatchInfo> didiaokan_matchInfoList = getMatchInfoList(LiveSource.DIDIAOKAN_Source);
+        List<MatchInfo> kuwanMatchInfoList = getMatchInfoList(KUWAN_Source);
+        //低调看直播源信息
+        List<MatchInfo> didiaokanMatchInfoList = getMatchInfoList(LiveSource.DIDIAOKAN_Source);
 
         calendar.setTime(new Date());
         Date todayDate = calendar.getTime();
@@ -86,7 +87,7 @@ public class LiveServiceImpl extends BaseService implements LiveService {
             jsonObject.put("match_desc", ((JSONObject)matchObject.get("matchInfo")).getString("matchDesc"));
             jsonObject.put("mid", mid);
 
-            for(MatchInfo matchInfo : kuwan_matchInfoList){
+            for(MatchInfo matchInfo : kuwanMatchInfoList){
                 if(matchInfo.getMatch_name().contains("NBA")){
                     if(leftName.contains(matchInfo.getGuest_team())
                             && rightName.contains(matchInfo.getHome_team()
@@ -103,6 +104,9 @@ public class LiveServiceImpl extends BaseService implements LiveService {
     }
 
     private List<MatchInfo> getMatchInfoList(LiveSource liveSource){
+       // String kuwan_url = PropertiesUtil.getProperties("kuwan_url");
+        String didiaokan_url = new PropertiesUtil().getProperties("didiaokan_url");
+        String leqiuba_url = new PropertiesUtil().getProperties("leqiuba_url");
         HtmlPaser htmlPaser = new JsoupUtils();
         String url = "";
         switch (liveSource){

@@ -1,13 +1,14 @@
 package com.suda.utils;
 
+import com.suda.pojo.MatchInfo;
 import com.suda.web.ContextHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.MessageSource;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.web.context.WebApplicationContext;
-
-import java.util.Locale;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.core.env.Environment;
 
 /**
  * 读取资源文件
@@ -15,7 +16,27 @@ import java.util.Locale;
  * Class: PropertiesUtil
  * User: weida
  */
+@Configuration
+@PropertySource("classpath:sys/application.properties")
 public class PropertiesUtil {
+    @Autowired
+    private Environment env;
+
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer
+    propertySourcesPlaceholderConfigurer() {
+        return new PropertySourcesPlaceholderConfigurer();
+    }
+
+    @Bean
+    public MatchInfo mongoTemplate() throws Exception {
+
+        String mongodbUrl = env.getProperty("kuwan_url");
+        String defaultDb = env.getProperty("kuwan_url");
+
+        return new MatchInfo();
+
+    }
 
     /**
      * 带默认值的读取方式
@@ -23,40 +44,38 @@ public class PropertiesUtil {
      * @param defaultValue
      * @return
      */
-    public static String getProperties(String key, String defaultValue) {
+    public String getProperties(String key, String defaultValue) {
         String value = getProperties(key);
         return (value != null && !value.equals("") ? value : defaultValue);
     }
 
-//    /**
-//     * 通过key读取
-//     * @param key
-//     * @return
-//     */
-    public static String getProperties(String key) {
-        ApplicationContext appContext = ContextHolder.getApplicationContext();
-        String value = "";
-        try {
-            value = appContext.getMessage(key, new Object[0], ContextHolder.getInstance().getLocal());
-            return (value != null && !value.equals("") ? value : null);
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
     /**
-    * 通过key读取
-    * @param key
-    * @return
-    */
+     * 通过key读取
+     * @param key
+     * @return
+     */
 //    public static String getProperties(String key) {
-//        MessageSource resources = new ClassPathXmlApplicationContext("spring-base.xml");
+//        ApplicationContext appContext = ContextHolder.getApplicationContext();
 //        String value = "";
 //        try {
-//            value = resources.getMessage(key, new Object[0], Locale.getDefault());
+//            value = appContext.getMessage(key, new Object[0], ContextHolder.getInstance().getLocal());
 //            return (value != null && !value.equals("") ? value : null);
 //        } catch (Exception e) {
 //            return null;
 //        }
 //    }
+
+    /**
+     * 通过key读取
+     * @param key
+     * @return
+     */
+    public String getProperties(String key) {
+        try {
+            String value = env.getProperty(key);
+            return (value != null && !value.equals("") ? value : null);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }
