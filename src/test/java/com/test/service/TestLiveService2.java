@@ -33,7 +33,7 @@ public class TestLiveService2 {
     @Test
     public void testLiveService(){
         //ystem.out.println(new PropertiesUtil().getProperties("kuwan_url"));
-        System.out.println(env.getProperty("kuwan_url"));
+        //System.out.println(env.getProperty("kuwan_url"));
         ContextHolder.getInstance().setApplicationContext(ctx);
         ContextHolder.getInstance().setLocal(Locale.getDefault());
         List<Date> dateList = new ArrayList<Date>();

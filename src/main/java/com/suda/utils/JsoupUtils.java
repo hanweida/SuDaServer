@@ -447,6 +447,7 @@ public class JsoupUtils implements HtmlPaser {
      * @params:[html, baseUrl, liveSource]
      * @returns:java.util.List<com.suda.pojo.MatchInfo>
      */
+    @Override
     public List<MatchInfo> paserHtml(String html, String baseUrl, LiveSource liveSource) {
         List<MatchInfo> matchInfoList = null;
         switch (liveSource){
@@ -455,5 +456,85 @@ public class JsoupUtils implements HtmlPaser {
             default:break;
         }
         return matchInfoList;
+    }
+
+
+    /**
+     * 返回didiaokanJs代码
+     * @author:ES-BF-IT-126
+     * @method:didiaoParseJs
+     * @date:Date 2018/2/28
+     * @params:[str]
+     * @returns:java.lang.String
+     */
+    public String didiaoParseJs(String str){
+        Document document = Jsoup.parse(str);
+        Elements elements = document.getElementsByTag("script");
+        if(elements.size() > 0){
+            Iterator<Element> iterator = elements.iterator();
+            while (iterator.hasNext()){
+                Element element = iterator.next();
+                if(element.hasAttr("src")){
+                    String value = element.attr("src");
+                    return value;
+                }
+            }
+        }
+        return null;
+    }
+
+    public String didiaoParsejsMatch(String str, String baseUrl){
+        List<MatchInfo> matchInfoList = new ArrayList<MatchInfo>();
+        Document document = Jsoup.parse(str);
+        Elements elements = document.getElementsByTag("a");
+        if(elements.size() > 0){
+            Iterator<Element> iterator = elements.iterator();
+            while (iterator.hasNext()){
+                MatchInfo matchInfo = new MatchInfo();
+                matchInfo.setBase_url(baseUrl);
+                Element element = iterator.next();
+                Elements eleChildren = element.children();
+                Iterator<Element> iteChildren = eleChildren.iterator();
+//                while (iteChildren.hasNext()){
+//                    Element child = iteChildren.next();
+//
+//                }
+
+                Elements elements2 = element.getElementsByAttributeValue("class", "\\\"team-right\\\"");
+                Iterator<Element> iterator2 = elements2.iterator();
+                //客队
+                parseDidiaoTeamInfo(element.getElementsByAttributeValue("class", "\\\"team-left\\\""), matchInfo, 0);
+                //主队
+                parseDidiaoTeamInfo(element.getElementsByAttributeValue("class", "\\\"team-right\\\""), matchInfo, 1);
+
+                String matchUrl = element.attr("href");
+                Elements elements1 = element.getElementsByTag("img");
+                //System.out.println(element.toString());
+            }
+        }
+        return null;
+    }
+
+    private MatchInfo parseDidiaoTeamInfo(Elements elements, MatchInfo matchInfo, int type){
+        if(elements.size() >0){
+            Element team_element = elements.get(0);
+            Elements elements1 = team_element.children();
+            String img_src = elements1.tagName("img").attr("src");
+            //img_src = img_src.replaceAll("\\\"","");
+            //替换\" 为 ""
+            img_src = img_src.replace("\\\"", "");
+
+            String p_text = elements1.tagName("font").text();
+            if(type == 0){
+                matchInfo.setGuest_team(p_text);
+                matchInfo.setGuest_logo_url(img_src);
+            } else {
+                matchInfo.setHome_team(p_text);
+                matchInfo.setHome_logo_url(img_src);
+            }
+        } else {
+            System.out.println("No team-left");
+        }
+        return matchInfo;
     }
 }

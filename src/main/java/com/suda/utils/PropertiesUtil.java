@@ -41,7 +41,6 @@ public class PropertiesUtil {
         String mongodbUrl = env.getProperty("kuwan_url");
         String defaultDb = env.getProperty("kuwan_url");
         return new MatchInfo();
-
     }
 
     /**

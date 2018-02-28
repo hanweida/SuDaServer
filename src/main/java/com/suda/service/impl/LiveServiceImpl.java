@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.suda.web.enum_const.LiveSource.DIDIAOKAN_Source;
 import static com.suda.web.enum_const.LiveSource.KUWAN_Source;
 
 /**
@@ -29,6 +30,15 @@ import static com.suda.web.enum_const.LiveSource.KUWAN_Source;
  */
 @Service
 public class LiveServiceImpl extends BaseService implements LiveService {
+    @Value("${kuwan_url}")
+    private String kuwan_url;
+    @Value("${didiaokan_url}")
+    private String didiaokan_url;
+    @Value("${didiaokan_murl}")
+    private String didiaokan_murl;
+    @Value("${leqiuba_url}")
+    private String leqiuba_url;
+
     final HttpClientUtil httpClientUtil = new HttpClientUtil();
 
     @Override
@@ -38,9 +48,9 @@ public class LiveServiceImpl extends BaseService implements LiveService {
         Calendar calendar = Calendar.getInstance();
 
         //酷玩直播源信息
-        List<MatchInfo> kuwanMatchInfoList = getMatchInfoList(KUWAN_Source);
+        //List<MatchInfo> kuwanMatchInfoList = getMatchInfoList(LiveSource.KUWAN_Source);
         //低调看直播源信息
-        List<MatchInfo> didiaokanMatchInfoList = getMatchInfoList(LiveSource.DIDIAOKAN_Source);
+        List<MatchInfo> didiaokanMatchInfoList = getMatchInfoList(DIDIAOKAN_Source);
 
         calendar.setTime(new Date());
         Date todayDate = calendar.getTime();
@@ -83,17 +93,17 @@ public class LiveServiceImpl extends BaseService implements LiveService {
             jsonObject.put("match_desc", ((JSONObject)matchObject.get("matchInfo")).getString("matchDesc"));
             jsonObject.put("mid", mid);
 
-            for(MatchInfo matchInfo : kuwanMatchInfoList){
-                if(matchInfo.getMatch_name().contains("NBA")){
-                    if(leftName.contains(matchInfo.getGuest_team())
-                            && rightName.contains(matchInfo.getHome_team()
-                    )){
-                        jsonObject.put("match_url", matchInfo.getMatch_url());
-                        jsonObject.put("match_time", matchInfo.getMatch_time());
-                        jsonObject.put("match_name", matchInfo.getMatch_name());
-                    }
-                }
-            }
+//            for(MatchInfo matchInfo : kuwanMatchInfoList){
+//                if(matchInfo.getMatch_name().contains("NBA")){
+//                    if(leftName.contains(matchInfo.getGuest_team())
+//                            && rightName.contains(matchInfo.getHome_team()
+//                    )){
+//                        jsonObject.put("match_url", matchInfo.getMatch_url());
+//                        jsonObject.put("match_time", matchInfo.getMatch_time());
+//                        jsonObject.put("match_name", matchInfo.getMatch_name());
+//                    }
+//                }
+//            }
             jsonArray.add(jsonObject);
         }
         return jsonArray;
@@ -108,11 +118,6 @@ public class LiveServiceImpl extends BaseService implements LiveService {
      * @returns:java.util.List<com.suda.pojo.MatchInfo>
      */
     private List<MatchInfo> getMatchInfoList(LiveSource liveSource){
-        PropertiesUtil properties = new PropertiesUtil();
-        String kuwan_url = properties.getProperties("kuwan_url");
-        String didiaokan_url = properties.getProperties("didiaokan_url");
-        String leqiuba_url = properties.getProperties("leqiuba_url");
-
         HtmlPaser htmlPaser = new JsoupUtils();
         String url = "";
         switch (liveSource){
@@ -122,8 +127,11 @@ public class LiveServiceImpl extends BaseService implements LiveService {
             default:break;
         }
         if(StringUtil.isNotBlank(url)){
-            String html = httpClientUtil.sendDataGet(url);
+            //获得页面代码
+            String html = httpClientUtil.sendDataGet(url+didiaokan_murl);
             if(StringUtil.isNotBlank(html)){
+                //解析页面获得比赛信息
+                resolveMatchBySource(liveSource, url);
                 List<MatchInfo> matchInfoList = htmlPaser.paserHtml(html, url, liveSource);
                 return matchInfoList;
             } else {
@@ -132,5 +140,20 @@ public class LiveServiceImpl extends BaseService implements LiveService {
         } else {
             return null;
         }
+    }
+
+    private List resolveMatchBySource(LiveSource liveSource, String url){
+        JsoupUtils jsoupUtils = new JsoupUtils();
+        //获得页面代码
+        String html = httpClientUtil.sendDataGet(url+didiaokan_murl);
+        if(DIDIAOKAN_Source == liveSource){
+            String jsSrc = jsoupUtils.didiaoParseJs(html);
+            if(StringUtil.isNotBlank(jsSrc)){
+                //获得页面代码
+                String jsMatch = httpClientUtil.sendDataGet(url+jsSrc);
+                String jsMatchMap = jsoupUtils.didiaoParsejsMatch(jsMatch, url);
+            }
+        }
+        return null;
     }
 }
