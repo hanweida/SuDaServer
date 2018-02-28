@@ -153,7 +153,8 @@ public class VideoController {
             String leftName =((JSONObject)matchObject.get("matchInfo")).getString("leftName");
             String rightName =((JSONObject)matchObject.get("matchInfo")).getString("rightName");
             String mid =((JSONObject)matchObject.get("matchInfo")).getString("mid");
-            String startTime =((JSONObject)matchObject.get("matchInfo")).getString("startTime");
+            Date startTime =((JSONObject)matchObject.get("matchInfo")).getDate("startTime");
+            SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat("MM-dd hh:mm");
             leftName = CharacterConvert.unicodeToString(leftName);
             rightName = CharacterConvert.unicodeToString(rightName);
             jsonObject.put("home_team", rightName);
@@ -166,19 +167,19 @@ public class VideoController {
             jsonObject.put("guest_logo_url", ((JSONObject)matchObject.get("matchInfo")).getString("leftBadge"));
             jsonObject.put("match_desc", ((JSONObject)matchObject.get("matchInfo")).getString("matchDesc"));
             jsonObject.put("mid", mid);
-            jsonObject.put("start_time", startTime);
+            jsonObject.put("start_time", simpleDateFormat1.format(startTime));
 
-            for(MatchInfo matchInfo : kuwan_matchInfoList){
-                if(matchInfo.getMatch_name().contains("NBA")){
-                    if(leftName.contains(matchInfo.getGuest_team())
-                            && rightName.contains(matchInfo.getHome_team()
-                    )){
-                        jsonObject.put("match_url", matchInfo.getMatch_url());
-                        jsonObject.put("match_time", matchInfo.getMatch_time());
-                        jsonObject.put("match_name", matchInfo.getMatch_name());
-                    }
-                }
-            }
+//            for(MatchInfo matchInfo : kuwan_matchInfoList){
+//                if(matchInfo.getMatch_name().contains("NBA")){
+//                    if(leftName.contains(matchInfo.getGuest_team())
+//                            && rightName.contains(matchInfo.getHome_team()
+//                    )){
+//                        jsonObject.put("match_url", matchInfo.getMatch_url());
+//                        jsonObject.put("match_time", matchInfo.getMatch_time());
+//                        jsonObject.put("match_name", matchInfo.getMatch_name());
+//                    }
+//                }
+//            }
             jsonArray.add(jsonObject);
         }
         return jsonArray;
