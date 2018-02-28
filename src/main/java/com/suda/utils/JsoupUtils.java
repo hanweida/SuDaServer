@@ -520,7 +520,7 @@ public class JsoupUtils implements HtmlPaser {
             Element team_element = elements.get(0);
             Elements elements1 = team_element.children();
             String img_src = elements1.tagName("img").attr("src");
-            //img_src = img_src.replaceAll("\\\"","");
+            ////img_src = img_src.replaceAll("\\\"","");
             //替换\" 为 ""
             img_src = img_src.replace("\\\"", "");
 
