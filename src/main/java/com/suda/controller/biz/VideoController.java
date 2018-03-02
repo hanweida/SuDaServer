@@ -116,9 +116,17 @@ public class VideoController {
 
     @RequestMapping(value = "/gamenbalist", method = {RequestMethod.GET})
     @ResponseBody
-    public JSONArray getGameNBAList(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse){
+    public JSONArray getGameNBAList(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
+                                    @RequestParam(value = "pageNum", defaultValue = "1") String pageNum
+                                    ){
         List<Date> dateList = new ArrayList<Date>();
-        Date date = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DATE, Integer.parseInt(pageNum));
+        Date date = calendar.getTime();
+        if(Integer.parseInt(pageNum) <= 1){
+            Date todayDate = new Date();
+            dateList.add(todayDate);
+        }
         dateList.add(date);
         JSONArray jsonArray = liveService.getMatchInfo(dateList);
         return jsonArray;

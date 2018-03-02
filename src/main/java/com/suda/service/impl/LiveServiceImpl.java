@@ -43,77 +43,90 @@ public class LiveServiceImpl extends BaseService implements LiveService {
     final HttpClientUtil httpClientUtil = new HttpClientUtil();
 
     @Override
-    public JSONArray getMatchInfo(List<Date> date) {
-        Map<String, String> map = new HashMap<String, String>(16);
+    public JSONArray getMatchInfo(List<Date> dateList) {
+        long totalStartTime = System.currentTimeMillis();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat startTimeFormat = new SimpleDateFormat("MM-dd hh:mm");
 
         //酷玩直播源信息
         //List<MatchInfo> kuwanMatchInfoList = getMatchInfoList(LiveSource.KUWAN_Source);
         //低调看直播源信息
         List<MatchInfo> didiaokanMatchInfoList = getMatchInfoList(DIDIAOKAN_Source);
+        JSONArray jsonArray = null;
+        JSONArray totalArray = new JSONArray();
+        JSONObject josnData = null;
 
-        calendar.setTime(new Date());
-        Date todayDate = calendar.getTime();
-        calendar.add(Calendar.DAY_OF_YEAR, 1);
-        Date tomorrowDate = calendar.getTime();
-
-        //System.out.println(simpleDateFormat.format(date));;
-        map.put("date", simpleDateFormat.format(tomorrowDate));
+        //Map最好设置默认值，防止成倍扩大，占内存
+        Map<String, String> map = new HashMap<String, String>(16);
         map.put("appver", "1.0.2.2");
         map.put("appvid", "1.0.2.2");
         map.put("network", "wifi");
-//        String str = httpClientUtil.sendDataGet("http://sportsnba.qq.com/match/listByDate", map);
-//        JSONObject matchJsonObject = JSON.parseObject(str);
-//        JSONArray tomorrowmatchJsonArray = (JSONArray)(((JSONObject)matchJsonObject.get("data")).get("matches"));
 
-        map.put("date", simpleDateFormat.format(todayDate));
-        //比赛列表：http://sportsnba.qq.com/match/listByDate?date=2017-12-08&appver=1.0.2.2&appvid=1.0.2.2&network=wifi
-        String todayStr = httpClientUtil.sendDataGet("http://sportsnba.qq.com/match/listByDate", map);
-        JSONObject todaymatchJsonObject = JSON.parseObject(todayStr);
-        JSONArray todaymatchJsonArray = (JSONArray)(((JSONObject)todaymatchJsonObject.get("data")).get("matches"));
+        for(Date date : dateList){
+            JSONObject totalData = new JSONObject();
+            String dateStr = simpleDateFormat.format(date);
+            map.put("date", dateStr);
+            //比赛列表：http://sportsnba.qq.com/match/listByDate?date=2017-12-08&appver=1.0.2.2&appvid=1.0.2.2&network=wifi
+            String listNBAStr = httpClientUtil.sendDataGet("http://sportsnba.qq.com/match/listByDate", map);
+            JSONObject matchJsonObject = JSON.parseObject(listNBAStr);
+            JSONArray matchJsonArray = (JSONArray)(((JSONObject)matchJsonObject.get("data")).get("matches"));
+            int compareDate = date.compareTo(new Date());
+            if(compareDate < 0){
+                totalData.put("key", dateStr+"  今天");
+            } else if(compareDate == 1){
+                totalData.put("key", dateStr+"  明天");
+            }
+            jsonArray = new JSONArray();
+            for(int i=0; i < matchJsonArray.size(); i++){
+                josnData = new JSONObject();
+                JSONObject matchObject = (JSONObject)matchJsonArray.get(i);
+                String leftName =((JSONObject)matchObject.get("matchInfo")).getString("leftName");
+                String rightName =((JSONObject)matchObject.get("matchInfo")).getString("rightName");
+                String mid =((JSONObject)matchObject.get("matchInfo")).getString("mid");
+                leftName = CharacterConvert.unicodeToString(leftName);
+                rightName = CharacterConvert.unicodeToString(rightName);
+                Date startTime =((JSONObject)matchObject.get("matchInfo")).getDate("startTime");
+                josnData.put("home_team", rightName);
+                josnData.put("guest_team", leftName);
+                josnData.put("home_team_score", ((JSONObject)matchObject.get("matchInfo")).getString("rightGoal"));
+                josnData.put("guest_team_score", ((JSONObject)matchObject.get("matchInfo")).getString("leftGoal"));
+                josnData.put("match_quarter", ((JSONObject)matchObject.get("matchInfo")).getString("quarter"));
+                josnData.put("match_quarterTime", ((JSONObject)matchObject.get("matchInfo")).getString("quarterTime"));
+                josnData.put("home_logo_url", ((JSONObject)matchObject.get("matchInfo")).getString("rightBadge"));
+                josnData.put("guest_logo_url", ((JSONObject)matchObject.get("matchInfo")).getString("leftBadge"));
+                josnData.put("match_desc", ((JSONObject)matchObject.get("matchInfo")).getString("matchDesc"));
+                josnData.put("mid", mid);
+                josnData.put("start_time", startTimeFormat.format(startTime));
 
-        JSONArray jsonArray = new JSONArray();
-        JSONObject jsonObject = null;
-        for(int i=0; i<todaymatchJsonArray.size(); i++){
-            jsonObject = new JSONObject();
-            JSONObject matchObject = (JSONObject)todaymatchJsonArray.get(i);
-            String leftName =((JSONObject)matchObject.get("matchInfo")).getString("leftName");
-            String rightName =((JSONObject)matchObject.get("matchInfo")).getString("rightName");
-            String mid =((JSONObject)matchObject.get("matchInfo")).getString("mid");
-            leftName = CharacterConvert.unicodeToString(leftName);
-            rightName = CharacterConvert.unicodeToString(rightName);
-            jsonObject.put("home_team", rightName);
-            jsonObject.put("guest_team", leftName);
-            jsonObject.put("home_team_score", ((JSONObject)matchObject.get("matchInfo")).getString("rightGoal"));
-            jsonObject.put("guest_team_score", ((JSONObject)matchObject.get("matchInfo")).getString("leftGoal"));
-            jsonObject.put("match_quarter", ((JSONObject)matchObject.get("matchInfo")).getString("quarter"));
-            jsonObject.put("match_quarterTime", ((JSONObject)matchObject.get("matchInfo")).getString("quarterTime"));
-            jsonObject.put("home_logo_url", ((JSONObject)matchObject.get("matchInfo")).getString("rightBadge"));
-            jsonObject.put("guest_logo_url", ((JSONObject)matchObject.get("matchInfo")).getString("leftBadge"));
-            jsonObject.put("match_desc", ((JSONObject)matchObject.get("matchInfo")).getString("matchDesc"));
-            jsonObject.put("mid", mid);
-
-            //低调看的视频
-            for(MatchInfo matchInfo : didiaokanMatchInfoList){
-                if(leftName.contains(matchInfo.getGuest_team())
-                        && rightName.contains(matchInfo.getHome_team()
-                )){
+                //只查找当天日期的地址
+                Date todayDate = new Date();
+                String todayStr = simpleDateFormat.format(todayDate);
+                if(todayStr.equals(dateStr)){
+                    //低调看的视频
+                    for(MatchInfo matchInfo : didiaokanMatchInfoList){
+                        if(leftName.contains(matchInfo.getGuest_team())
+                                && rightName.contains(matchInfo.getHome_team()
+                        )){
 //                    JSONArray jsonArray1 = new JSONArray();
 //                    for(Map.Entry<String, String> entry : matchInfo.getSourcePlayer().entrySet()){
 //                        JSONObject jsonObject1 = new JSONObject();
 //                        jsonObject1.put(entry.getKey(), entry.getValue());
 //                        jsonArray1.add(jsonObject1);
 //                    }
-                    jsonObject.put("match_url", matchInfo.getMatch_url());
-                    jsonObject.put("match_time", matchInfo.getMatch_time());
-                    jsonObject.put("match_name", matchInfo.getMatch_name());
-                    //jsonObject.put("match_source", jsonArray1);
+                            josnData.put("match_url", matchInfo.getMatch_url());
+                            josnData.put("match_time", matchInfo.getMatch_time());
+                            josnData.put("match_name", matchInfo.getMatch_name());
+                            //jsonObject.put("match_source", jsonArray1);
+                        }
+                    }
                 }
+                jsonArray.add(josnData);
             }
-            jsonArray.add(jsonObject);
+            totalData.put("data", jsonArray);
+            totalArray.add(totalData);
         }
-        return jsonArray;
+        System.out.println("总请求时间："+ (System.currentTimeMillis() - totalStartTime)+"ms");
+        return totalArray;
     }
 
     /**
@@ -164,6 +177,7 @@ public class LiveServiceImpl extends BaseService implements LiveService {
      * @returns:java.util.List<com.suda.pojo.MatchInfo>
      */
     private List<MatchInfo> getMatchInfoList(LiveSource liveSource){
+        long jsStartTime = System.currentTimeMillis();
         String url = "";
         switch (liveSource){
             case KUWAN_Source:url = kuwan_url; break;
@@ -176,8 +190,8 @@ public class LiveServiceImpl extends BaseService implements LiveService {
             String html = null;
             //解析页面获得比赛信息
             List<MatchInfo> matchInfoList = resolveMatchBySource(liveSource, url);
+            System.out.println("请求第三方比赛视频时间："+ (System.currentTimeMillis() - jsStartTime)+"ms");
             return matchInfoList;
-
         } else {
             return null;
         }
@@ -192,27 +206,21 @@ public class LiveServiceImpl extends BaseService implements LiveService {
      * @returns:java.util.List
      */
     private List resolveMatchBySource(LiveSource liveSource, String url){
-        long totalStartTime = System.currentTimeMillis();
         JsoupUtils jsoupUtils = new JsoupUtils();
         //获得页面代码
-        long startTime = System.currentTimeMillis();
         String html = httpClientUtil.sendDataGet(url+didiaokan_murl);
-        long time = System.currentTimeMillis() - startTime;
-        System.out.println("请求首页时间："+time+"ms");
         List<MatchInfo> matchInfoList = null;
         if(DIDIAOKAN_Source == liveSource){
 
             String jsSrc = jsoupUtils.didiaoParseJs(html);
             if(StringUtil.isNotBlank(jsSrc)){
                 //获得页面代码
-                long jsStartTime = System.currentTimeMillis();
+
                 String jsMatch = httpClientUtil.sendDataGet(url+jsSrc);
-                System.out.println("请求JS时间："+ (System.currentTimeMillis() - jsStartTime)+"ms");
                 //解析didiaokan 直播赛程比赛列表
                 matchInfoList = jsoupUtils.didiaoParsejsMatch(jsMatch, url);
             }
         }
-        System.out.println("总请求时间："+ (System.currentTimeMillis() - totalStartTime)+"ms");
         return matchInfoList;
     }
 }
