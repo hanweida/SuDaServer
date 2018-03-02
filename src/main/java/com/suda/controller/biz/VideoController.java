@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.suda.pojo.MatchInfo;
 import com.suda.pojo.MatchUrl;
+import com.suda.service.LiveService;
 import com.suda.utils.CharacterConvert;
 import com.suda.utils.HtmlParserTool;
 import com.suda.utils.HtmlPaser;
@@ -16,6 +17,7 @@ import com.suda.utils.PropertiesUtil;
 import com.suda.utils.StringUtil;
 import com.suda.web.enum_const.LiveSource;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -26,6 +28,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -38,6 +41,9 @@ import java.util.Map;
 @Controller
 @RequestMapping(value="/video")
 public class VideoController {
+
+    @Autowired
+    private LiveService liveService;
 
     @RequestMapping(value = "/geturl", method = {RequestMethod.GET})
     @ResponseBody
@@ -111,69 +117,37 @@ public class VideoController {
     @RequestMapping(value = "/gamenbalist", method = {RequestMethod.GET})
     @ResponseBody
     public JSONArray getGameNBAList(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse){
-        HttpClientUtil httpClientUtil = new HttpClientUtil();
-        HtmlPaser htmlPaser = new JsoupUtils();
-        Map<String, String> map = new HashMap<String, String>();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        SimpleDateFormat startTimeFormat = new SimpleDateFormat("MM-dd hh:mm");
-
-        Calendar calendar = Calendar.getInstance();
-
-        //酷玩直播源信息
-        //String kuwan_html = httpClientUtil.sendDataGet(kuwan_url);
-        //List<MatchInfo> kuwan_matchInfoList = htmlPaser.paserHtml(kuwan_html, kuwan_url, LiveSource.KUWAN_Source);
-        //didiaokan直播源信息
-        //String didiaokan_html = httpClientUtil.sendDataGet(didiaokan_url);
-        //List<MatchInfo> didiaokan_matchInfoList = htmlPaser.paserHtml(didiaokan_html, didiaokan_url, LiveSource.DIDIAOKAN_Source);
-
-        List<MatchInfo> kuwan_matchInfoList = null;
-        calendar.setTime(new Date());
-        Date todayDate = calendar.getTime();
-        calendar.add(Calendar.DAY_OF_YEAR, 1);
-        Date tomorrowDate = calendar.getTime();
-
-        //System.out.println(simpleDateFormat.format(date));;
-        map.put("date", simpleDateFormat.format(tomorrowDate));
-        map.put("appver", "1.0.2.2");
-        map.put("appvid", "1.0.2.2");
-        map.put("network", "wifi");
-        String str = httpClientUtil.sendDataGet("http://sportsnba.qq.com/match/listByDate", map);
-        JSONObject matchJsonObject = JSON.parseObject(str);
-        JSONArray tomorrowmatchJsonArray = (JSONArray)(((JSONObject)matchJsonObject.get("data")).get("matches"));
-
-        map.put("date", simpleDateFormat.format(todayDate));
-        //比赛列表：http://sportsnba.qq.com/match/listByDate?date=2017-12-08&appver=1.0.2.2&appvid=1.0.2.2&network=wifi
-        String todayStr = httpClientUtil.sendDataGet("http://sportsnba.qq.com/match/listByDate", map);
-        JSONObject todaymatchJsonObject = JSON.parseObject(todayStr);
-        JSONArray todaymatchJsonArray = (JSONArray)(((JSONObject)todaymatchJsonObject.get("data")).get("matches"));
-
-        JSONArray jsonArray = new JSONArray();
-        JSONObject jsonObject = null;
-        for(int i=0; i<todaymatchJsonArray.size(); i++){
-            jsonObject = new JSONObject();
-            JSONObject matchObject = (JSONObject)todaymatchJsonArray.get(i);
-            String leftName =((JSONObject)matchObject.get("matchInfo")).getString("leftName");
-            String rightName =((JSONObject)matchObject.get("matchInfo")).getString("rightName");
-            String mid =((JSONObject)matchObject.get("matchInfo")).getString("mid");
-            Date startTime =((JSONObject)matchObject.get("matchInfo")).getDate("startTime");
-            leftName = CharacterConvert.unicodeToString(leftName);
-            rightName = CharacterConvert.unicodeToString(rightName);
-            jsonObject.put("home_team", rightName);
-            jsonObject.put("guest_team", leftName);
-            jsonObject.put("home_team_score", ((JSONObject)matchObject.get("matchInfo")).getString("rightGoal"));
-            jsonObject.put("guest_team_score", ((JSONObject)matchObject.get("matchInfo")).getString("leftGoal"));
-            jsonObject.put("match_quarter", ((JSONObject)matchObject.get("matchInfo")).getString("quarter"));
-            jsonObject.put("match_quarterTime", ((JSONObject)matchObject.get("matchInfo")).getString("quarterTime"));
-            jsonObject.put("home_logo_url", ((JSONObject)matchObject.get("matchInfo")).getString("rightBadge"));
-            jsonObject.put("guest_logo_url", ((JSONObject)matchObject.get("matchInfo")).getString("leftBadge"));
-            jsonObject.put("match_desc", ((JSONObject)matchObject.get("matchInfo")).getString("matchDesc"));
-            jsonObject.put("mid", mid);
-            jsonObject.put("start_time", startTimeFormat.format(startTime));
-            jsonArray.add(jsonObject);
-        }
+        List<Date> dateList = new ArrayList<Date>();
+        Date date = new Date();
+        dateList.add(date);
+        JSONArray jsonArray = liveService.getMatchInfo(dateList);
         return jsonArray;
     }
 
+    /**
+     * 根据比赛列表，选择比赛，进入此方法，核心功能是 带比赛地址参数，找到比赛视频
+     * @author:ES-BF-IT-126
+     * @method:getGameNBAMatch
+     * @date:Date 2018/3/2
+     * @params:[httpServletRequest, httpServletResponse]
+     * @returns:com.alibaba.fastjson.JSONArray
+     */
+    @RequestMapping(value = "/gamenbamatch", method = {RequestMethod.GET})
+    @ResponseBody
+    public JSONArray getGameNBAMatch(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
+            @RequestParam(value = "matchurl", defaultValue = "") String match_url
+    ){
+        //比赛地址,如:jrs中的 http://m.didiaokan.com//e/pptv/pptvw.php?classid=3&id=17979
+        if(StringUtil.isNotBlank(match_url)){
+            //根据 比赛地址，获得直播源信息如： CCTV5、QQ
+            MatchInfo matchInfo = liveService.getMatchSource(match_url);
+        }
+        List<Date> dateList = new ArrayList<Date>();
+        Date date = new Date();
+        dateList.add(date);
+        JSONArray jsonArray = null;
+        return jsonArray;
+    }
 
 
 

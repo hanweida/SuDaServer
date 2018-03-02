@@ -1,5 +1,6 @@
 package com.test.service;
 
+import com.alibaba.fastjson.JSONArray;
 import com.suda.service.LiveService;
 import com.suda.web.ContextHolder;
 import org.junit.Test;
@@ -39,6 +40,7 @@ public class TestLiveService2 {
         List<Date> dateList = new ArrayList<Date>();
         Date date = new Date();
         dateList.add(date);
-        liveServiceImpl.getMatchInfo(dateList);
+        JSONArray jsonArray = liveServiceImpl.getMatchInfo(dateList);
+        System.out.println(jsonArray.toString());
     }
 }

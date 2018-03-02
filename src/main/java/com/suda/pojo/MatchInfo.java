@@ -1,5 +1,7 @@
 package com.suda.pojo;
 
+import java.util.Map;
+
 /**
  * Created by ES-BF-IT-126 on 2017/11/28.
  */
@@ -12,6 +14,15 @@ public class MatchInfo {
     public String guest_logo_url;
     public String match_url;
     public String base_url;
+    public Map<String, String> sourcePlayer;
+
+    public Map<String, String> getSourcePlayer() {
+        return sourcePlayer;
+    }
+
+    public void setSourcePlayer(Map<String, String> sourcePlayer) {
+        this.sourcePlayer = sourcePlayer;
+    }
 
     public String getBase_url() {
         return base_url;
@@ -106,6 +117,8 @@ public class MatchInfo {
                 ", home_logo_url='" + home_logo_url + '\'' +
                 ", guest_logo_url='" + guest_logo_url + '\'' +
                 ", match_url='" + match_url + '\'' +
+                ", base_url='" + base_url + '\'' +
+                ", sourcePlayer=" + sourcePlayer +
                 '}';
     }
 

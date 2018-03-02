@@ -8,8 +8,10 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by ES-BF-IT-126 on 2017/12/15.
@@ -483,36 +485,59 @@ public class JsoupUtils implements HtmlPaser {
         return null;
     }
 
-    public String didiaoParsejsMatch(String str, String baseUrl){
+    /**
+     * 返回didiaokanQQ直播Src代码
+     * @author:ES-BF-IT-126
+     * @method:didiaoParseJs
+     * @date:Date 2018/2/28
+     * @params:[str]
+     * @returns:java.lang.String
+     */
+    public String didiaoParseQQ(String str){
+        Document document = Jsoup.parse(str);
+        Elements elements = document.getElementsByTag("iframe");
+        if(elements.size() > 0){
+            Iterator<Element> iterator = elements.iterator();
+            while (iterator.hasNext()){
+                Element element = iterator.next();
+                if(element.hasAttr("src")){
+                    String value = element.attr("src");
+                    return value;
+                }
+            }
+        }
+        return null;
+    }
+
+    public List<MatchInfo> didiaoParsejsMatch(String str, String baseUrl){
         List<MatchInfo> matchInfoList = new ArrayList<MatchInfo>();
         Document document = Jsoup.parse(str);
         Elements elements = document.getElementsByTag("a");
         if(elements.size() > 0){
+            //去掉第一个didiaokan 非比赛项
+            elements.remove(0);
             Iterator<Element> iterator = elements.iterator();
             while (iterator.hasNext()){
                 MatchInfo matchInfo = new MatchInfo();
                 matchInfo.setBase_url(baseUrl);
                 Element element = iterator.next();
-                Elements eleChildren = element.children();
-                Iterator<Element> iteChildren = eleChildren.iterator();
-//                while (iteChildren.hasNext()){
-//                    Element child = iteChildren.next();
-//
-//                }
-
-                Elements elements2 = element.getElementsByAttributeValue("class", "\\\"team-right\\\"");
-                Iterator<Element> iterator2 = elements2.iterator();
                 //客队
-                parseDidiaoTeamInfo(element.getElementsByAttributeValue("class", "\\\"team-left\\\""), matchInfo, 0);
+                parseDidiaoTeamInfo(element.getElementsByAttributeValue("class", matchReplacedStr("team-left")), matchInfo, 0);
                 //主队
-                parseDidiaoTeamInfo(element.getElementsByAttributeValue("class", "\\\"team-right\\\""), matchInfo, 1);
-
+                parseDidiaoTeamInfo(element.getElementsByAttributeValue("class", matchReplacedStr("team-right")), matchInfo, 1);
                 String matchUrl = element.attr("href");
-                Elements elements1 = element.getElementsByTag("img");
-                //System.out.println(element.toString());
+                matchUrl = getReplacedStr(matchUrl);
+                matchInfo.setMatch_url(matchUrl);
+                Elements elements1 = element.getElementsByAttributeValue("class", matchReplacedStr("score-content"));
+                if(elements1.size() > 0){
+                    Element element1 = elements1.get(0);
+                    String text = element1.text();
+                    matchInfo.setMatch_time(text);
+                }
+                matchInfoList.add(matchInfo);
             }
         }
-        return null;
+        return matchInfoList;
     }
 
     private MatchInfo parseDidiaoTeamInfo(Elements elements, MatchInfo matchInfo, int type){
@@ -522,7 +547,7 @@ public class JsoupUtils implements HtmlPaser {
             String img_src = elements1.tagName("img").attr("src");
             ////img_src = img_src.replaceAll("\\\"","");
             //替换\" 为 ""
-            img_src = img_src.replace("\\\"", "");
+            img_src = getReplacedStr(img_src);
 
             String p_text = elements1.tagName("font").text();
             if(type == 0){
@@ -537,4 +562,77 @@ public class JsoupUtils implements HtmlPaser {
         }
         return matchInfo;
     }
+
+    /**
+     * 根据 cctv,或者qq 源，得到Map队列<源名，源地址>
+     * @author:ES-BF-IT-126
+     * @method:matchReplacedStr
+     * @date:Date 2018/3/1
+     * @params:[replaceStr]
+     * @returns:java.lang.String
+     */
+    public Map<String, String> parseSourceChoose(String html, String baseUrl){
+        Document document = Jsoup.parse(html);
+        Elements elements = document.getElementsByAttributeValue("class", "mv_action");
+        Map<String, String> map = new HashMap<String, String>();
+        Iterator<Element> iterator = elements.iterator();
+        //MapKey 不允许重复，所以如果有重复key 时，数字加1
+        int qqFlag = 0;
+        while (iterator.hasNext()){
+            String href = null;
+            Element element = iterator.next();
+            if(element.childNodeSize() > 0){
+                href = element.child(0).attr("href");
+                String text = element.text();
+                //MapKey 不允许重复，所以如果有重复key 时，数字加1
+                //例如: QQ，QQ1
+                if(text.contains("QQ")){
+                    if(qqFlag != 0){
+                        text = text+qqFlag;
+                    }
+                    qqFlag += 1;
+                }
+
+                //过滤英文源，因为英文源不能播放
+                if(!text.contains("英文")){
+                    map.put(text, baseUrl+href);
+                }
+                //map.put(text, baseUrl+href);
+            }
+        }
+        return map;
+    }
+
+    /**
+     * 替换 didiaokan 链接内的 \" 无用转义符
+     * 例如：href=\"http://m.didiaokan.com\" 替换为 href="http://m.didiaokan.com"
+     * @author:ES-BF-IT-126
+     * @method:getReplaced
+     * @date:Date 2018/3/1
+     * @params:[replaceStr]
+     * @returns:java.lang.String
+     */
+    private String getReplacedStr(String replaceStr){
+        if(StringUtil.isNotBlank(replaceStr)){
+            replaceStr = replaceStr.replace("\\\"", "");
+        }
+        return replaceStr;
+    }
+
+    /**
+     * 插入 didiaokan 链接内的 \" 为转义符
+     * 例如:<div class=\"team-left\">
+     * @author:ES-BF-IT-126
+     * @method:matchReplacedStr
+     * @date:Date 2018/3/1
+     * @params:[replaceStr]
+     * @returns:java.lang.String
+     */
+    private String matchReplacedStr(String matchStr){
+        StringBuilder stringBuilder = new StringBuilder(matchStr);
+        stringBuilder.insert(0, "\\\"");
+        stringBuilder.append("\\\"");
+        return stringBuilder.toString();
+    }
+
 }

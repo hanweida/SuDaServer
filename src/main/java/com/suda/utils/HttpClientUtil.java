@@ -210,7 +210,14 @@ public class HttpClientUtil {
 			headers.add(new Header("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.76 Mobile Safari/537.36"));
 			httpClient.getHostConfiguration().getParams().setParameter("http.default-headers", headers);
 			int code = httpClient.executeMethod(getMethod);
-			text = getMethod.getResponseBodyAsString();
+			//text = getMethod.getResponseBodyAsString();
+			 BufferedReader reader = new BufferedReader(new InputStreamReader(getMethod.getResponseBodyAsStream(), "utf-8"));
+			 StringBuffer stringBuffer = new StringBuffer();
+			 String str = "";
+			 while((str = reader.readLine())!=null){
+				 stringBuffer.append(str);
+			 }
+			 text = stringBuffer.toString();
 		  }
 		  catch(Exception e){
 		  }finally{
@@ -238,8 +245,22 @@ public class HttpClientUtil {
 			headers.add(new Header("Upgrade-Insecure-Requests", "1"));
 			headers.add(new Header("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.76 Mobile Safari/537.36"));
 			httpClient.getHostConfiguration().getParams().setParameter("http.default-headers", headers);
+			httpClient.getParams().setContentCharset("utf-8");
+
+			HttpConnectionManagerParams configParams = httpClient.getHttpConnectionManager().getParams();
+			configParams.setConnectionTimeout(5*1000);  //设置请求超时5秒钟 根据业务调整
+			configParams.setSoTimeout(5*1000);  //设置等待数据超时时间2秒钟 根据业务调整
+			httpClient.getParams().setConnectionManagerTimeout(60*1000L);//该值就是连接不够用的时候等待超时时间，一定要设置，而且不能太大 ()
+
 			int code = httpClient.executeMethod(getMethod);
-			text = getMethod.getResponseBodyAsString();
+			//text = getMethod.getResponseBodyAsString();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(getMethod.getResponseBodyAsStream(), "utf-8"));
+			StringBuffer stringBuffer = new StringBuffer();
+			String str = "";
+			while((str = reader.readLine())!=null){
+				stringBuffer.append(str);
+			}
+			text = stringBuffer.toString();
 		}
 		catch(Exception e){
 		}finally{
@@ -271,7 +292,7 @@ public class HttpClientUtil {
             httpClient.getHostConfiguration().getParams().setParameter("http.default-headers", headers);
             int code = httpClient.executeMethod(getMethod);
             //text = getMethod.getResponseBodyAsString();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(getMethod.getResponseBodyAsStream()));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(getMethod.getResponseBodyAsStream(), "utf-8"));
             StringBuffer stringBuffer = new StringBuffer();
             String str = "";
             while((str = reader.readLine())!=null){
