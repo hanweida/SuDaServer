@@ -49,7 +49,7 @@ public class LiveServiceImpl extends BaseService implements LiveService {
         SimpleDateFormat startTimeFormat = new SimpleDateFormat("MM-dd hh:mm");
 
         //酷玩直播源信息
-        //List<MatchInfo> kuwanMatchInfoList = getMatchInfoList(LiveSource.KUWAN_Source);
+        List<MatchInfo> kuwanMatchInfoList = getMatchInfoList(LiveSource.KUWAN_Source);
         //低调看直播源信息
         List<MatchInfo> didiaokanMatchInfoList = getMatchInfoList(DIDIAOKAN_Source);
         JSONArray jsonArray = null;
@@ -208,10 +208,10 @@ public class LiveServiceImpl extends BaseService implements LiveService {
     private List resolveMatchBySource(LiveSource liveSource, String url){
         JsoupUtils jsoupUtils = new JsoupUtils();
         //获得页面代码
-        String html = httpClientUtil.sendDataGet(url+didiaokan_murl);
         List<MatchInfo> matchInfoList = null;
+        String html = null;
         if(DIDIAOKAN_Source == liveSource){
-
+            html = httpClientUtil.sendDataGet(url+didiaokan_murl);
             String jsSrc = jsoupUtils.didiaoParseJs(html);
             if(StringUtil.isNotBlank(jsSrc)){
                 //获得页面代码
@@ -220,6 +220,17 @@ public class LiveServiceImpl extends BaseService implements LiveService {
                 //解析didiaokan 直播赛程比赛列表
                 matchInfoList = jsoupUtils.didiaoParsejsMatch(jsMatch, url);
             }
+        } else if(KUWAN_Source == liveSource){
+            html = httpClientUtil.sendDataGet(kuwan_url);
+            matchInfoList = jsoupUtils.paserHtml(html, kuwan_url, KUWAN_Source);
+            System.out.println("");
+//            if(StringUtil.isNotBlank(jsSrc)){
+//                //获得页面代码
+//
+//                String jsMatch = httpClientUtil.sendDataGet(url+jsSrc);
+//                //解析didiaokan 直播赛程比赛列表
+//                matchInfoList = jsoupUtils.didiaoParsejsMatch(jsMatch, url);
+//            }
         }
         return matchInfoList;
     }
