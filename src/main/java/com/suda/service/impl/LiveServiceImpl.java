@@ -20,11 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.suda.web.enum_const.LiveSource.DIDIAOKAN_Source;
 import static com.suda.web.enum_const.LiveSource.KUWAN_Source;
@@ -176,21 +172,76 @@ public class LiveServiceImpl extends BaseService implements LiveService {
         return matchInfo;
     }
 
+    /**
+     * 获得比赛播放地址、比赛数据
+     * @author:ES-BF-IT-126
+     * @method:getMatchSource
+     * @date:Date 2018/3/2
+     * @params:[tabTMidpel] 腾讯Mid,比赛id
+     * @params:[tabTypel] 	1:本场最佳、球队统计 	2：球员统计 	3：球队数据王、历史对阵
+     *
+     * @returns:com.alibaba.fastjson.JSONArray
+     */
     @Override
-    public JSONObject getMatchState(String mid, String tabType) {
+    public JSONObject getMatchState(String mid, String tabType, final String homeTeamName,final  String guestTeamName) {
+        long totalStartTime = System.currentTimeMillis();
+
         TencentService tencentService = new TencentService();
-        tencentService.getMatchStat(mid, tabType, new RequestCallBack<MatchStat>() {
+        String gson = tencentService.getMatchStat(mid, tabType, new RequestCallBack<MatchStat>() {
                     @Override
-                    public void onSuccess(MatchStat matchStat) {
+                    public String onSuccess(MatchStat matchStat) {
+                        //酷玩直播源信息
+                        List<MatchInfo> kuwanMatchInfoList = getMatchInfoList(LiveSource.KUWAN_Source);
+                        //低调看直播源信息
+                        List<MatchInfo> didiaokanMatchInfoList = getMatchInfoList(DIDIAOKAN_Source);
                         Gson gson = new Gson();
-                        System.out.println(gson.toJson(matchStat));
+                        matchStat.data.matchSourceList = new ArrayList<MatchStat.MatchSource>();
+
+                        MatchStat.MatchSource matchSource = new MatchStat.MatchSource();
+                        matchSource.sourceName = "cctv5";
+                        matchSource.sourceValue = "www.html";
+                        matchStat.data.matchSourceList.add(matchSource);
+
+                        MatchStat.MatchSource matchSource2 = new MatchStat.MatchSource();
+                        matchSource2.sourceName = "QQ";
+                        matchSource2.sourceValue = "www.html2";
+                        matchStat.data.matchSourceList.add(matchSource2);
+
+//                        for(MatchInfo matchInfo : didiaokanMatchInfoList){
+//                            if(guestTeamName.contains(matchInfo.getGuest_team())
+//                                    && homeTeamName.contains(matchInfo.getHome_team()
+//                            )){
+//                                for(Map.Entry<String, String> entry : matchInfo.getSourcePlayer().entrySet()){
+//                                    MatchStat.MatchSource matchSource = new MatchStat.MatchSource();
+//                                    matchSource.sourceName = entry.getKey();
+//                                    matchSource.sourceValue = entry.getValue();
+//                                    matchStat.data.matchSources.add(matchSource);
+//                                }
+//                            }
+//                        }
+//                        for(MatchInfo matchInfo : kuwanMatchInfoList){
+//                            if(guestTeamName.contains(matchInfo.getGuest_team())
+//                                    && homeTeamName.contains(matchInfo.getHome_team()
+//                            )){
+//                                for(Map.Entry<String, String> entry : matchInfo.getSourcePlayer().entrySet()){
+//                                    MatchStat.MatchSource matchSource = new MatchStat.MatchSource();
+//                                    matchSource.sourceName = entry.getKey();
+//                                    matchSource.sourceValue = entry.getValue();
+//                                    matchStat.data.matchSources.add(matchSource);
+//                                }
+//                            }
+//                        }
+                        //System.out.println(gson.toJson(matchStat));
+                        return gson.toJson(matchStat) ;
                     }
                     @Override
                     public void onFailure(String message) {
 
                     }
         });
-                return null;
+        //System.out.println(gson);
+        System.out.println("总请求时间："+ (System.currentTimeMillis() - totalStartTime)+"ms");
+                return JSON.parseObject(gson);
     }
 
     /**

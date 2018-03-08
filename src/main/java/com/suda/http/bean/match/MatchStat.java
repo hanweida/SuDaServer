@@ -14,6 +14,7 @@ public class MatchStat extends Base {
         public String livePeriod;
         public List<MatchStats> stats;
         public MatchTeamInfo teamInfo;
+        public List<MatchSource> matchSourceList;
     }
     public static class MatchTeamInfo implements Serializable{
         public String leftId;
@@ -143,5 +144,9 @@ public class MatchStat extends Base {
         public String text;
         public Integer leftVal;
         public Integer rightVal;
+    }
+    public static class MatchSource implements Serializable{
+        public String sourceName;
+        public String sourceValue;
     }
 }

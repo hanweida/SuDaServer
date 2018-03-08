@@ -24,8 +24,9 @@ public class TestHttp {
     public void TencentService() throws InterruptedException {
 
         tencentService.getMatchStat("100000:1470662", "2", new RequestCallBack<MatchStat>() {
-            public void onSuccess(MatchStat matchStat) {
+            public String onSuccess(MatchStat matchStat) {
                 System.out.println(matchStat.toString());
+                return null;
             }
             public void onFailure(String message) {
                 System.out.println(message);
@@ -36,10 +37,11 @@ public class TestHttp {
     @Test
     public void TencentParse() throws InterruptedException {
         tencentService.getMatchStat("100000:1470662", "2", new RequestCallBack<MatchStat>() {
-            public void onSuccess(MatchStat matchStat) {
+            public String onSuccess(MatchStat matchStat) {
 
                 Gson gson = new Gson();
                 System.out.println(gson.toJson(matchStat));
+                return null;
             }
             public void onFailure(String message) {
                 System.out.println(message);
@@ -50,9 +52,11 @@ public class TestHttp {
     @Test
     public void TencentMatchList() throws InterruptedException {
         tencentService.listByDate("2018-01-09", new RequestCallBack<MatchList>() {
-            public void onSuccess(MatchList matchList) {
+            public String onSuccess(MatchList matchList) {
                 Gson gson = new Gson();
                 System.out.println(gson.toJson(matchList));
+                return null;
+
             }
 
             public void onFailure(String message) {
@@ -73,9 +77,11 @@ public class TestHttp {
         HuPuNewsService huPuNewsService = new HuPuNewsService();
         try {
             huPuNewsService.getNewsList(new RequestCallBack<HuPuNewsList>() {
-                public void onSuccess(HuPuNewsList huPuNewsList) {
+                public String onSuccess(HuPuNewsList huPuNewsList) {
                     Gson gson = new Gson();
                     System.out.println(gson.toJson(huPuNewsList));
+                    return null;
+
                 }
 
                 public void onFailure(String message) {
@@ -92,9 +98,11 @@ public class TestHttp {
         HuPuNewsService huPuNewsService = new HuPuNewsService();
         try {
             huPuNewsService.getNewsDetailSchema("2231928", new RequestCallBack<HuPuNewsDetail>() {
-                public void onSuccess(HuPuNewsDetail huPuNewsDetail) {
+                public String onSuccess(HuPuNewsDetail huPuNewsDetail) {
                     Gson gson = new Gson();
                     System.out.println(gson.toJson(huPuNewsDetail));
+                    return null;
+
                 }
                 public void onFailure(String message) {
 
@@ -110,9 +118,11 @@ public class TestHttp {
         HuPuNewsService huPuNewsService = new HuPuNewsService();
         try {
             huPuNewsService.getNewsDetailRepli("2231928", new RequestCallBack<HuPuNewsReply>() {
-                public void onSuccess(HuPuNewsReply huPuNewsReply) {
+                public String onSuccess(HuPuNewsReply huPuNewsReply) {
                     Gson gson = new Gson();
                     System.out.println(gson.toJson(huPuNewsReply));
+                    return null;
+
                 }
 
                 public void onFailure(String message) {

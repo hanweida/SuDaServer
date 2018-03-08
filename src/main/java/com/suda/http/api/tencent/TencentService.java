@@ -1,5 +1,6 @@
 package com.suda.http.api.tencent;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonParser;
 import com.suda.http.api.BaseService;
 import com.suda.http.api.RequestCallBack;
@@ -38,9 +39,9 @@ public class TencentService extends BaseService {
      * @params:[mid, tableType, cbk]
      * @returns:void
      */
-    public void getMatchStat(String mid, String tableType, final RequestCallBack<MatchStat> cbk){
+    public String getMatchStat(String mid, String tableType, final RequestCallBack<MatchStat> cbk){
         Call<String> call = tencentApi.getMatchStat(mid, tableType);
-        requestCall(call, MatchStat.class, cbk);
+        return requestCall(call, MatchStat.class, cbk);
     }
 
     /**

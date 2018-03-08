@@ -68,6 +68,6 @@ public class TestLiveService2 {
         List<Date> dateList = new ArrayList<Date>();
         Date date = new Date();
         dateList.add(date);
-        liveServiceImpl.getMatchState("100000:1471289", "3");
+        liveServiceImpl.getMatchState("100000:1471289", "3", "爵士", "步行者");
     }
 }

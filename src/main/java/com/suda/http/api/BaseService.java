@@ -1,5 +1,6 @@
 package com.suda.http.api;
 
+import com.google.gson.Gson;
 import com.suda.http.utils.JsonParserPojo;
 import com.suda.utils.LogUtil;
 import org.slf4j.Logger;
@@ -13,19 +14,20 @@ import java.io.IOException;
  */
 public abstract class BaseService<T extends Object>{
 
-    public void requestCall(Call call, Class<T> clz, RequestCallBack<T> cbk){
+    public String requestCall(Call call, Class<T> clz, RequestCallBack<T> cbk){
         Logger Log = LogUtil.getErrorLog();
         Response<String> response = null;
         try {
             response = call.execute();
             if(response.code() == 200){
                 T list = (T)JsonParserPojo.parseWithGson(clz, response.body());
-                cbk.onSuccess(list);
+                return cbk.onSuccess(list);
             } else {
                 cbk.onFailure(response.message());
             }
         } catch (IOException e) {
             Log.error(e.getMessage());
         }
+        return null;
     }
 }
