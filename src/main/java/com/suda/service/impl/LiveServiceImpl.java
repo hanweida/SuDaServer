@@ -3,6 +3,10 @@ package com.suda.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.google.gson.Gson;
+import com.suda.http.api.RequestCallBack;
+import com.suda.http.api.tencent.TencentService;
+import com.suda.http.bean.match.MatchStat;
 import com.suda.pojo.MatchInfo;
 import com.suda.service.LiveService;
 import com.suda.utils.CharacterConvert;
@@ -113,10 +117,14 @@ public class LiveServiceImpl extends BaseService implements LiveService {
 //                        jsonObject1.put(entry.getKey(), entry.getValue());
 //                        jsonArray1.add(jsonObject1);
 //                    }
-                            josnData.put("match_url", matchInfo.getMatch_url());
-                            josnData.put("match_time", matchInfo.getMatch_time());
-                            josnData.put("match_name", matchInfo.getMatch_name());
-                            //jsonObject.put("match_source", jsonArray1);
+                            josnData.put("didiao_match_url", matchInfo.getMatch_url());
+                        }
+                    }
+                    for(MatchInfo matchInfo : kuwanMatchInfoList){
+                        if(leftName.contains(matchInfo.getGuest_team())
+                                && rightName.contains(matchInfo.getHome_team()
+                        )){
+                            josnData.put("kuwawn_match_url", matchInfo.getMatch_url());
                         }
                     }
                 }
@@ -166,6 +174,23 @@ public class LiveServiceImpl extends BaseService implements LiveService {
         }
         System.out.println("请求比赛时间："+ (System.currentTimeMillis() - matchStartTime)+"ms");
         return matchInfo;
+    }
+
+    @Override
+    public JSONObject getMatchState(String mid, String tabType) {
+        TencentService tencentService = new TencentService();
+        tencentService.getMatchStat(mid, tabType, new RequestCallBack<MatchStat>() {
+                    @Override
+                    public void onSuccess(MatchStat matchStat) {
+                        Gson gson = new Gson();
+                        System.out.println(gson.toJson(matchStat));
+                    }
+                    @Override
+                    public void onFailure(String message) {
+
+                    }
+        });
+                return null;
     }
 
     /**

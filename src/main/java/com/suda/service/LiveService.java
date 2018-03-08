@@ -1,6 +1,7 @@
 package com.suda.service;
 
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.suda.pojo.MatchInfo;
 
 import java.util.Date;
@@ -12,4 +13,5 @@ import java.util.List;
 public interface LiveService {
     JSONArray getMatchInfo(List<Date> date);
     MatchInfo getMatchSource(String url);
+    JSONObject getMatchState(String mid, String tabType);
 }

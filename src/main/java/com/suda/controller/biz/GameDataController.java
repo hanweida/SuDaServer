@@ -24,17 +24,6 @@ public class GameDataController {
     public void matchStat(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
                           @RequestParam(value = "mid", required = true) String mid, @RequestParam(value = "tabType", defaultValue = "2") String tabType
                           ){
-        TencentService tencentService = new TencentService();
-        tencentService.getMatchStat(mid, tabType, new RequestCallBack<MatchStat>() {
-            public void onSuccess(MatchStat matchStat) {
-                Gson gson = new Gson();
-                System.out.println(gson.toJson(matchStat));
-            }
-
-            public void onFailure(String message) {
-
-            }
-        });
 
     }
 }
