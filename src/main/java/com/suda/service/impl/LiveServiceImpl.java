@@ -16,6 +16,8 @@ import com.suda.utils.JsoupUtils;
 import com.suda.utils.PropertiesUtil;
 import com.suda.utils.StringUtil;
 import com.suda.web.enum_const.LiveSource;
+import com.suda.web.enum_const.LiveSourceConst;
+import com.sun.xml.internal.bind.v2.TODO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -157,16 +159,21 @@ public class LiveServiceImpl extends BaseService implements LiveService {
                 //获得播放源与播放页面url如：cctv5-url、QQ-url
                 Map<String , String> sourceUrlMap = new HashMap<String, String>();
                 sourceUrlMap = jsoupUtils.parseSourceChoose(sourceChoose, didiaokan_url);
+                matchInfo.setSourcePlayer(sourceUrlMap);
+
                 //解析QQ视频的 iframe 的src 地址
-                for(Map.Entry<String,String> entry : sourceUrlMap.entrySet()){
-                    if(entry.getKey().contains("QQ")){
-                        String valueHtml = httpClientUtil.sendDataGet(entry.getValue());
-                        String playUrl = jsoupUtils.didiaoParseQQ(valueHtml);
-                        sourceUrlMap.put(entry.getKey(), playUrl);
-                        matchInfo.setSourcePlayer(sourceUrlMap);
-                    }
-                }
+//                for(Map.Entry<String,String> entry : sourceUrlMap.entrySet()){
+//                    if(entry.getKey().contains("QQ")){
+//                        //TODO 此处没有根据播放源（cctv/qq）请求直播src，每次请求节省3秒时间，可以放到单独根据请求直播src页面中
+//                        String valueHtml = httpClientUtil.sendDataGet(entry.getValue());
+//                        String playUrl = jsoupUtils.didiaoParseQQ(valueHtml);
+//                        sourceUrlMap.put(entry.getKey(), playUrl);
+//                        matchInfo.setSourcePlayer(sourceUrlMap);
+//                    }
+//                }
             }
+            //设置比赛直播源标识
+            matchInfo.setMatchLiveSource(LiveSourceConst.DIDIAOKAN_Source.getIndex());
         }
         System.out.println("请求比赛时间："+ (System.currentTimeMillis() - matchStartTime)+"ms");
         return matchInfo;
@@ -185,53 +192,19 @@ public class LiveServiceImpl extends BaseService implements LiveService {
     @Override
     public JSONObject getMatchState(String mid, String tabType, final String homeTeamName,final  String guestTeamName) {
         long totalStartTime = System.currentTimeMillis();
-
         TencentService tencentService = new TencentService();
         String gson = tencentService.getMatchStat(mid, tabType, new RequestCallBack<MatchStat>() {
                     @Override
                     public String onSuccess(MatchStat matchStat) {
                         //酷玩直播源信息
-                        List<MatchInfo> kuwanMatchInfoList = getMatchInfoList(LiveSource.KUWAN_Source);
+                        //List<MatchInfo> kuwanMatchInfoList = getMatchInfoList(LiveSource.KUWAN_Source);
                         //低调看直播源信息
                         List<MatchInfo> didiaokanMatchInfoList = getMatchInfoList(DIDIAOKAN_Source);
                         Gson gson = new Gson();
-                        matchStat.data.matchSourceList = new ArrayList<MatchStat.MatchSource>();
-
-                        MatchStat.MatchSource matchSource = new MatchStat.MatchSource();
-                        matchSource.sourceName = "cctv5";
-                        matchSource.sourceValue = "www.html";
-                        matchStat.data.matchSourceList.add(matchSource);
-
-                        MatchStat.MatchSource matchSource2 = new MatchStat.MatchSource();
-                        matchSource2.sourceName = "QQ";
-                        matchSource2.sourceValue = "www.html2";
-                        matchStat.data.matchSourceList.add(matchSource2);
-
-//                        for(MatchInfo matchInfo : didiaokanMatchInfoList){
-//                            if(guestTeamName.contains(matchInfo.getGuest_team())
-//                                    && homeTeamName.contains(matchInfo.getHome_team()
-//                            )){
-//                                for(Map.Entry<String, String> entry : matchInfo.getSourcePlayer().entrySet()){
-//                                    MatchStat.MatchSource matchSource = new MatchStat.MatchSource();
-//                                    matchSource.sourceName = entry.getKey();
-//                                    matchSource.sourceValue = entry.getValue();
-//                                    matchStat.data.matchSources.add(matchSource);
-//                                }
-//                            }
-//                        }
-//                        for(MatchInfo matchInfo : kuwanMatchInfoList){
-//                            if(guestTeamName.contains(matchInfo.getGuest_team())
-//                                    && homeTeamName.contains(matchInfo.getHome_team()
-//                            )){
-//                                for(Map.Entry<String, String> entry : matchInfo.getSourcePlayer().entrySet()){
-//                                    MatchStat.MatchSource matchSource = new MatchStat.MatchSource();
-//                                    matchSource.sourceName = entry.getKey();
-//                                    matchSource.sourceValue = entry.getValue();
-//                                    matchStat.data.matchSources.add(matchSource);
-//                                }
-//                            }
-//                        }
-                        //System.out.println(gson.toJson(matchStat));
+                        //根据比赛列表信息获得比赛url
+                        getMatchSourceLive(didiaokanMatchInfoList, matchStat, homeTeamName, guestTeamName);
+                        //getMatchSourceLive(kuwanMatchInfoList, matchStat, homeTeamName, guestTeamName);
+                        System.out.println(gson.toJson(matchStat));
                         return gson.toJson(matchStat) ;
                     }
                     @Override
@@ -239,11 +212,46 @@ public class LiveServiceImpl extends BaseService implements LiveService {
 
                     }
         });
-        //System.out.println(gson);
         System.out.println("总请求时间："+ (System.currentTimeMillis() - totalStartTime)+"ms");
                 return JSON.parseObject(gson);
     }
 
+    /**
+     * 根据比赛列表信息，用其中 比赛的url获得比赛的直播src
+     * "data": {
+ "          matchSourceList": [{
+     "          liveSource": 2,
+     "          sourceName": "QQ高清",
+     "          sourceValue": "https://d5a5b3dd1ccb90d30360f0c068fd43fc.oss-cn-shanghai.aliyuncs.com/w.html"},
+     "       {
+                liveSource": 2,
+     "          sourceName": "QQ高清1",
+     "          sourceValue": "https://d5a5b3dd1ccb90d30360f0c068fd43fc.oss-cn-shanghai.aliyuncs.com/w.html"
+            }],
+     * @author:ES-BF-IT-126
+     * @method:getMatchSourceLive
+     * @date:Date 2018/3/9
+     * @params:[list, matchStat, homeTeamName, guestTeamName]
+     * @returns:void
+     */
+    private void getMatchSourceLive(List<MatchInfo> list, MatchStat matchStat, String homeTeamName, String guestTeamName){
+        matchStat.data.matchSourceList = new ArrayList<MatchStat.MatchSource>();
+        for(MatchInfo matchInfo : list){
+            if(guestTeamName.contains(matchInfo.getGuest_team())
+                    && homeTeamName.contains(matchInfo.getHome_team()
+            )){
+                //根据比赛地址。请求获得比赛源与比赛直播地址
+                MatchInfo matchInfo1 = getMatchSource( matchInfo.getMatch_url());
+                for(Map.Entry<String, String> entry : matchInfo1.getSourcePlayer().entrySet()){
+                    MatchStat.MatchSource matchSource = new MatchStat.MatchSource();
+                    matchSource.sourceName = entry.getKey();
+                    matchSource.sourceValue = entry.getValue();
+                    matchSource.liveSource = matchInfo1.getMatchLiveSource();
+                    matchStat.data.matchSourceList.add(matchSource);
+                }
+            }
+        }
+    }
     /**
      * 根据直播源获得直播数据
      * @author:weida
@@ -281,20 +289,20 @@ public class LiveServiceImpl extends BaseService implements LiveService {
      * @params:[liveSource, url]
      * @returns:java.util.List
      */
-    private List resolveMatchBySource(LiveSource liveSource, String url){
+    private List resolveMatchBySource(LiveSource liveSource, String matchurl){
         JsoupUtils jsoupUtils = new JsoupUtils();
         //获得页面代码
         List<MatchInfo> matchInfoList = null;
         String html = null;
         if(DIDIAOKAN_Source == liveSource){
-            html = httpClientUtil.sendDataGet(url+didiaokan_murl);
+            html = httpClientUtil.sendDataGet(matchurl+didiaokan_murl);
             String jsSrc = jsoupUtils.didiaoParseJs(html);
             if(StringUtil.isNotBlank(jsSrc)){
                 //获得页面代码
 
-                String jsMatch = httpClientUtil.sendDataGet(url+jsSrc);
+                String jsMatch = httpClientUtil.sendDataGet(matchurl+jsSrc);
                 //解析didiaokan 直播赛程比赛列表
-                matchInfoList = jsoupUtils.didiaoParsejsMatch(jsMatch, url);
+                matchInfoList = jsoupUtils.didiaoParsejsMatch(jsMatch, matchurl);
             }
         } else if(KUWAN_Source == liveSource){
             html = httpClientUtil.sendDataGet(kuwan_url);

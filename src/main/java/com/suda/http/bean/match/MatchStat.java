@@ -148,5 +148,6 @@ public class MatchStat extends Base {
     public static class MatchSource implements Serializable{
         public String sourceName;
         public String sourceValue;
+        public Integer liveSource;
     }
 }

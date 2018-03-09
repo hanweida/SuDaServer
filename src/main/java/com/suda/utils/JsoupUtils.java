@@ -509,6 +509,14 @@ public class JsoupUtils implements HtmlPaser {
         return null;
     }
 
+    /**
+     * 根据js获得比赛列表 信息，包括比赛队名与比赛直播初步地址
+     * @author:ES-BF-IT-126
+     * @method:didiaoParsejsMatch
+     * @date:Date 2018/3/9
+     * @params:[str, baseUrl]
+     * @returns:java.util.List<com.suda.pojo.MatchInfo>
+     */
     public List<MatchInfo> didiaoParsejsMatch(String str, String baseUrl){
         List<MatchInfo> matchInfoList = new ArrayList<MatchInfo>();
         Document document = Jsoup.parse(str);

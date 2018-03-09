@@ -14,7 +14,16 @@ public class MatchInfo {
     public String guest_logo_url;
     public String match_url;
     public String base_url;
+    public Integer matchLiveSource; //比赛直播源
     public Map<String, String> sourcePlayer;
+
+    public Integer getMatchLiveSource() {
+        return matchLiveSource;
+    }
+
+    public void setMatchLiveSource(Integer matchLiveSource) {
+        this.matchLiveSource = matchLiveSource;
+    }
 
     public Map<String, String> getSourcePlayer() {
         return sourcePlayer;
