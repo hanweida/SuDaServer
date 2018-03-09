@@ -14,4 +14,5 @@ public interface LiveService {
     JSONArray getMatchInfo(List<Date> date);
     MatchInfo getMatchSource(String url);
     JSONObject getMatchState(String mid, String tabType, String homeTeamName, String guestTeamName);
+    String getMatchLiveUrl(String sourceUrl);
 }

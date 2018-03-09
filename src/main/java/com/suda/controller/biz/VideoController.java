@@ -16,6 +16,7 @@ import com.suda.utils.LogUtil;
 import com.suda.utils.PropertiesUtil;
 import com.suda.utils.StringUtil;
 import com.suda.web.enum_const.LiveSource;
+import com.suda.web.enum_const.LiveSourceConst;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -70,22 +71,37 @@ public class VideoController {
     @RequestMapping(value = "/getnbaurl", method = {RequestMethod.GET})
     @ResponseBody
     public ModelAndView getNBAUrl(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
-                               @RequestParam(value = "url", defaultValue = "") String match_url, @RequestParam(value = "mid", defaultValue = "") String mid){
+                               @RequestParam(value = "url", defaultValue = "") String match_url,
+                                  @RequestParam(value = "mid", defaultValue = "") String mid,
+                                  @RequestParam(value = "liveSource", defaultValue = "2") String liveSource,
+                                  @RequestParam(value = "sourceName", defaultValue = "") String sourceName
+                                  ){
         List<MatchUrl> matchUrlList = null;
         Map map = new HashMap();
-        if(StringUtil.isNotBlank(match_url) && StringUtil.isNotBlank(mid)  && !"undefined".equals(match_url)){
-            //match_url = match_url.replaceFirst("www","m");
-            HtmlParserTool htmlParserTool = new HtmlParserTool();
-            matchUrlList = htmlParserTool.htmlParserVideo(match_url);
-            //HTML解析
-            map.put("list", matchUrlList);
-            for(MatchUrl matchUrl : matchUrlList){
-                if(matchUrl.getActive()){
-                    map.put("matchUrl", matchUrl);
+        if(StringUtil.isNotBlank(match_url) && StringUtil.isNotBlank(mid) && StringUtil.isNotBlank(liveSource)
+                && StringUtil.isNotBlank(sourceName) && !"undefined".equals(match_url)){
+            if((LiveSourceConst.DIDIAOKAN_Source.getIndex()+"").equals(liveSource)){
+                String playSrc = liveService.getMatchLiveUrl(match_url);
+                map.put("matchUrl", match_url);
+                return new ModelAndView("/biz/play_didiaokan", map);
+            } else if((LiveSourceConst.KUWAN_Source.getIndex()+"").equals(liveSource)){
+                //match_url = match_url.replaceFirst("www","m");
+                HtmlParserTool htmlParserTool = new HtmlParserTool();
+                matchUrlList = htmlParserTool.htmlParserVideo(match_url);
+                //HTML解析
+                map.put("list", matchUrlList);
+                for(MatchUrl matchUrl : matchUrlList){
+                    if(matchUrl.getActive()){
+                        map.put("matchUrl", matchUrl);
+                    }
                 }
+                return new ModelAndView("/biz/hello", map);
+            } else {
+                return new ModelAndView("/biz/hello", map);
             }
+        } else {
+            return null;
         }
-        return new ModelAndView("/biz/hello", map);
     }
 
     @RequestMapping(value = "/gamelist", method = {RequestMethod.GET})

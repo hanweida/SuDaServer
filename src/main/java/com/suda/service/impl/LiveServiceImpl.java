@@ -190,7 +190,7 @@ public class LiveServiceImpl extends BaseService implements LiveService {
      * @returns:com.alibaba.fastjson.JSONArray
      */
     @Override
-    public JSONObject getMatchState(String mid, String tabType, final String homeTeamName,final  String guestTeamName) {
+    public JSONObject getMatchState(final String mid, String tabType, final String homeTeamName,final  String guestTeamName) {
         long totalStartTime = System.currentTimeMillis();
         TencentService tencentService = new TencentService();
         String gson = tencentService.getMatchStat(mid, tabType, new RequestCallBack<MatchStat>() {
@@ -201,8 +201,9 @@ public class LiveServiceImpl extends BaseService implements LiveService {
                         //低调看直播源信息
                         List<MatchInfo> didiaokanMatchInfoList = getMatchInfoList(DIDIAOKAN_Source);
                         Gson gson = new Gson();
+                        matchStat.data.mid=mid;
                         //根据比赛列表信息获得比赛url
-                        getMatchSourceLive(didiaokanMatchInfoList, matchStat, homeTeamName, guestTeamName);
+                        getMatchSourceLive(didiaokanMatchInfoList, matchStat, homeTeamName, guestTeamName, mid);
                         //getMatchSourceLive(kuwanMatchInfoList, matchStat, homeTeamName, guestTeamName);
                         System.out.println(gson.toJson(matchStat));
                         return gson.toJson(matchStat) ;
@@ -214,6 +215,16 @@ public class LiveServiceImpl extends BaseService implements LiveService {
         });
         System.out.println("总请求时间："+ (System.currentTimeMillis() - totalStartTime)+"ms");
                 return JSON.parseObject(gson);
+    }
+
+    @Override
+    public String getMatchLiveUrl(String sourceUrl) {
+        String valueHtml = httpClientUtil.sendDataGet(sourceUrl);
+        JsoupUtils jsoupUtils = new JsoupUtils();
+        String playUrl = jsoupUtils.didiaoParseQQ(valueHtml);
+//                        sourceUrlMap.put(entry.getKey(), playUrl);
+//                        matchInfo.setSourcePlayer(sourceUrlMap);
+        return playUrl;
     }
 
     /**
@@ -234,7 +245,7 @@ public class LiveServiceImpl extends BaseService implements LiveService {
      * @params:[list, matchStat, homeTeamName, guestTeamName]
      * @returns:void
      */
-    private void getMatchSourceLive(List<MatchInfo> list, MatchStat matchStat, String homeTeamName, String guestTeamName){
+    private void getMatchSourceLive(List<MatchInfo> list, MatchStat matchStat, String homeTeamName, String guestTeamName, String mid){
         matchStat.data.matchSourceList = new ArrayList<MatchStat.MatchSource>();
         for(MatchInfo matchInfo : list){
             if(guestTeamName.contains(matchInfo.getGuest_team())
@@ -318,4 +329,6 @@ public class LiveServiceImpl extends BaseService implements LiveService {
         }
         return matchInfoList;
     }
+
+
 }

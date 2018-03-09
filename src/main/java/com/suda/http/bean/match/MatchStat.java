@@ -12,6 +12,7 @@ public class MatchStat extends Base {
     public MatchStatInfo data;
     public static class MatchStatInfo implements Serializable{
         public String livePeriod;
+        public String mid;
         public List<MatchStats> stats;
         public MatchTeamInfo teamInfo;
         public List<MatchSource> matchSourceList;
