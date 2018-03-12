@@ -100,31 +100,31 @@ public class LiveServiceImpl extends BaseService implements LiveService {
                 josnData.put("start_time", startTimeFormat.format(startTime));
 
                 //只查找当天日期的地址
-                Date todayDate = new Date();
-                String todayStr = simpleDateFormat.format(todayDate);
-                if(todayStr.equals(dateStr)){
-                    //低调看的视频
-                    for(MatchInfo matchInfo : didiaokanMatchInfoList){
-                        if(leftName.contains(matchInfo.getGuest_team())
-                                && rightName.contains(matchInfo.getHome_team()
-                        )){
-//                    JSONArray jsonArray1 = new JSONArray();
-//                    for(Map.Entry<String, String> entry : matchInfo.getSourcePlayer().entrySet()){
-//                        JSONObject jsonObject1 = new JSONObject();
-//                        jsonObject1.put(entry.getKey(), entry.getValue());
-//                        jsonArray1.add(jsonObject1);
+//                Date todayDate = new Date();
+//                String todayStr = simpleDateFormat.format(todayDate);
+//                if(todayStr.equals(dateStr)){
+//                    //低调看的视频
+//                    for(MatchInfo matchInfo : didiaokanMatchInfoList){
+//                        if(leftName.contains(matchInfo.getGuest_team())
+//                                && rightName.contains(matchInfo.getHome_team()
+//                        )){
+////                    JSONArray jsonArray1 = new JSONArray();
+////                    for(Map.Entry<String, String> entry : matchInfo.getSourcePlayer().entrySet()){
+////                        JSONObject jsonObject1 = new JSONObject();
+////                        jsonObject1.put(entry.getKey(), entry.getValue());
+////                        jsonArray1.add(jsonObject1);
+////                    }
+//                            josnData.put("didiao_match_url", matchInfo.getMatch_url());
+//                        }
 //                    }
-                            josnData.put("didiao_match_url", matchInfo.getMatch_url());
-                        }
-                    }
-                    for(MatchInfo matchInfo : kuwanMatchInfoList){
-                        if(leftName.contains(matchInfo.getGuest_team())
-                                && rightName.contains(matchInfo.getHome_team()
-                        )){
-                            josnData.put("kuwawn_match_url", matchInfo.getMatch_url());
-                        }
-                    }
-                }
+//                    for(MatchInfo matchInfo : kuwanMatchInfoList){
+//                        if(leftName.contains(matchInfo.getGuest_team())
+//                                && rightName.contains(matchInfo.getHome_team()
+//                        )){
+//                            josnData.put("kuwawn_match_url", matchInfo.getMatch_url());
+//                        }
+//                    }
+//                }
                 jsonArray.add(josnData);
             }
             totalData.put("data", jsonArray);

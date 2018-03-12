@@ -82,7 +82,7 @@ public class VideoController {
                 && StringUtil.isNotBlank(sourceName) && !"undefined".equals(match_url)){
             if((LiveSourceConst.DIDIAOKAN_Source.getIndex()+"").equals(liveSource)){
                 String playSrc = liveService.getMatchLiveUrl(match_url);
-                map.put("matchUrl", match_url);
+                map.put("matchUrl", playSrc);
                 return new ModelAndView("/biz/play_didiaokan", map);
             } else if((LiveSourceConst.KUWAN_Source.getIndex()+"").equals(liveSource)){
                 //match_url = match_url.replaceFirst("www","m");
