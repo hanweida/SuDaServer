@@ -100,7 +100,7 @@ public class LiveServiceImpl extends BaseService implements LiveService {
                 josnData.put("start_time", startTimeFormat.format(startTime));
 
                 //只查找当天日期的地址
-//                Date todayDate = new Date();
+////                Date todayDate = new Date();
 //                String todayStr = simpleDateFormat.format(todayDate);
 //                if(todayStr.equals(dateStr)){
 //                    //低调看的视频
