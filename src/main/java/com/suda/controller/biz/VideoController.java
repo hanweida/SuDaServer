@@ -80,7 +80,9 @@ public class VideoController {
         Map map = new HashMap();
         if(StringUtil.isNotBlank(match_url) && StringUtil.isNotBlank(mid) && StringUtil.isNotBlank(liveSource)
                 && StringUtil.isNotBlank(sourceName) && !"undefined".equals(match_url)){
-            if((LiveSourceConst.DIDIAOKAN_Source.getIndex()+"").equals(liveSource)){
+            if(sourceName.contains("cctv")){
+                return new ModelAndView("/biz/cctv5");
+            } else if((LiveSourceConst.DIDIAOKAN_Source.getIndex()+"").equals(liveSource)){
                 String playSrc = liveService.getMatchLiveUrl(match_url);
                 map.put("matchUrl", playSrc);
                 return new ModelAndView("/biz/play_didiaokan", map);
@@ -97,7 +99,7 @@ public class VideoController {
                 }
                 return new ModelAndView("/biz/hello", map);
             } else {
-                return new ModelAndView("/biz/hello", map);
+                return new ModelAndView("/biz/cctv5");
             }
         } else {
             return null;

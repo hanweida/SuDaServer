@@ -10,10 +10,8 @@ import com.suda.http.bean.match.MatchStat;
 import com.suda.pojo.MatchInfo;
 import com.suda.service.LiveService;
 import com.suda.utils.CharacterConvert;
-import com.suda.utils.HtmlPaser;
 import com.suda.utils.HttpClientUtil;
 import com.suda.utils.JsoupUtils;
-import com.suda.utils.PropertiesUtil;
 import com.suda.utils.StringUtil;
 import com.suda.web.enum_const.LiveSource;
 import com.suda.web.enum_const.LiveSourceConst;
@@ -48,11 +46,6 @@ public class LiveServiceImpl extends BaseService implements LiveService {
         long totalStartTime = System.currentTimeMillis();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat startTimeFormat = new SimpleDateFormat("MM-dd hh:mm");
-
-        //酷玩直播源信息
-        List<MatchInfo> kuwanMatchInfoList = getMatchInfoList(LiveSource.KUWAN_Source);
-        //低调看直播源信息
-        List<MatchInfo> didiaokanMatchInfoList = getMatchInfoList(DIDIAOKAN_Source);
         JSONArray jsonArray = null;
         JSONArray totalArray = new JSONArray();
         JSONObject josnData = null;
@@ -73,9 +66,9 @@ public class LiveServiceImpl extends BaseService implements LiveService {
             JSONArray matchJsonArray = (JSONArray)(((JSONObject)matchJsonObject.get("data")).get("matches"));
             int compareDate = date.compareTo(new Date());
             if(compareDate < 0){
-                totalData.put("key", dateStr+"  今天");
+                totalData.put("key", dateStr+"  今天比赛");
             } else if(compareDate == 1){
-                totalData.put("key", dateStr+"  明天");
+                totalData.put("key", dateStr+"  明天比赛");
             }
             jsonArray = new JSONArray();
             for(int i=0; i < matchJsonArray.size(); i++){
@@ -98,33 +91,6 @@ public class LiveServiceImpl extends BaseService implements LiveService {
                 josnData.put("match_desc", ((JSONObject)matchObject.get("matchInfo")).getString("matchDesc"));
                 josnData.put("mid", mid);
                 josnData.put("start_time", startTimeFormat.format(startTime));
-
-                //只查找当天日期的地址
-////                Date todayDate = new Date();
-//                String todayStr = simpleDateFormat.format(todayDate);
-//                if(todayStr.equals(dateStr)){
-//                    //低调看的视频
-//                    for(MatchInfo matchInfo : didiaokanMatchInfoList){
-//                        if(leftName.contains(matchInfo.getGuest_team())
-//                                && rightName.contains(matchInfo.getHome_team()
-//                        )){
-////                    JSONArray jsonArray1 = new JSONArray();
-////                    for(Map.Entry<String, String> entry : matchInfo.getSourcePlayer().entrySet()){
-////                        JSONObject jsonObject1 = new JSONObject();
-////                        jsonObject1.put(entry.getKey(), entry.getValue());
-////                        jsonArray1.add(jsonObject1);
-////                    }
-//                            josnData.put("didiao_match_url", matchInfo.getMatch_url());
-//                        }
-//                    }
-//                    for(MatchInfo matchInfo : kuwanMatchInfoList){
-//                        if(leftName.contains(matchInfo.getGuest_team())
-//                                && rightName.contains(matchInfo.getHome_team()
-//                        )){
-//                            josnData.put("kuwawn_match_url", matchInfo.getMatch_url());
-//                        }
-//                    }
-//                }
                 jsonArray.add(josnData);
             }
             totalData.put("data", jsonArray);
