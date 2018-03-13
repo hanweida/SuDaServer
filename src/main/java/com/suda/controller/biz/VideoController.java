@@ -28,6 +28,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -80,11 +83,18 @@ public class VideoController {
         Map map = new HashMap();
         if(StringUtil.isNotBlank(match_url) && StringUtil.isNotBlank(mid) && StringUtil.isNotBlank(liveSource)
                 && StringUtil.isNotBlank(sourceName) && !"undefined".equals(match_url)){
-            if(sourceName.contains("cctv")){
+            if(sourceName.toLowerCase().contains("cctv")){
                 return new ModelAndView("/biz/cctv5");
             } else if((LiveSourceConst.DIDIAOKAN_Source.getIndex()+"").equals(liveSource)){
                 String playSrc = liveService.getMatchLiveUrl(match_url);
+                playSrc = playSrc.substring(playSrc.indexOf("?id=")+"?id=".length());
+                try {
+                    playSrc = URLDecoder.decode(playSrc, "utf-8");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
                 map.put("matchUrl", playSrc);
+                System.out.println(playSrc);
                 return new ModelAndView("/biz/play_didiaokan", map);
             } else if((LiveSourceConst.KUWAN_Source.getIndex()+"").equals(liveSource)){
                 //match_url = match_url.replaceFirst("www","m");
