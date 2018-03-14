@@ -49,7 +49,7 @@ public class GameDataController {
         //JSONObject jsonObject = liveService.getMatchState(mid, tabType, "独行侠", "灰熊");
         System.out.println(homeStr);
         System.out.println(guestStr);
-        JSONObject jsonObject = liveService.getMatchState(mid, tabType, homeStr, guestStr);
+        JSONObject jsonObject = liveService.getMatchState(mid, tabType, homeTeamName, guestTeamName);
         //JSONObject jsonObject = JSON.parseObject(str);
         return jsonObject;
     }

@@ -80,7 +80,7 @@ public class VideoController {
                                   @RequestParam(value = "sourceName", defaultValue = "") String sourceName
                                   ){
         List<MatchUrl> matchUrlList = null;
-        Map map = new HashMap();
+        Map map = new HashMap(16);
         if(StringUtil.isNotBlank(match_url) && StringUtil.isNotBlank(mid) && StringUtil.isNotBlank(liveSource)
                 && StringUtil.isNotBlank(sourceName) && !"undefined".equals(match_url)){
             if(sourceName.toLowerCase().contains("cctv")){
@@ -112,7 +112,7 @@ public class VideoController {
                 return new ModelAndView("/biz/cctv5");
             }
         } else {
-            return null;
+            return new ModelAndView("/biz/cctv5");
         }
     }
 

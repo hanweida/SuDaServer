@@ -23,11 +23,11 @@
 <div class="container">
     <div class="wrap">
 
-        <div id="showplayer"><iframe width="100%" height="180px" src="${matchUrl}"
-                 frameborder="0" marginwidth="0" marginheight="0" scrolling="no" >
-            <video
-                   controls="controls" autoplay="autoplay" width="100%" height="100%"></video>
-        </iframe></div>
+        <div id="showplayer">
+            <video autoplay="autoplay" width="100%" height="100%">
+                <source src="${matchUrl}" />
+            </video>
+     </div>
         <div class="signal">
         </div>
     </div>
