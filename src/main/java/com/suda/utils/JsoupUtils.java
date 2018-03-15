@@ -26,11 +26,11 @@ public class JsoupUtils implements HtmlPaser {
             String img_src = elements1.tagName("img").attr("src");
             String p_text = elements1.tagName("p").text();
             if(type == 0){
-                matchInfo.setGuest_team(p_text);
-                matchInfo.setGuest_logo_url(matchInfo.getBase_url()+img_src);
-            } else {
                 matchInfo.setHome_team(p_text);
                 matchInfo.setHome_logo_url(matchInfo.getBase_url()+img_src);
+            } else {
+                matchInfo.setGuest_team(p_text);
+                matchInfo.setGuest_logo_url(matchInfo.getBase_url()+img_src);
             }
         } else {
             System.out.println("No team-left");

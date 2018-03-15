@@ -14,7 +14,13 @@ public class MatchInfo {
     public String guest_logo_url;
     public String match_url;
     public String base_url;
-    public Integer matchLiveSource; //比赛直播源
+    /**
+     *比赛直播源
+     */
+    public Integer matchLiveSource;
+    /**
+     *比赛源名称,直播地址 diaokan:名称,src;   kuwan:名称,vid__player
+     */
     public Map<String, String> sourcePlayer;
 
     public Integer getMatchLiveSource() {

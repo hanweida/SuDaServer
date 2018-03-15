@@ -76,16 +76,16 @@ public class VideoController {
     public ModelAndView getNBAUrl(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
                                @RequestParam(value = "url", defaultValue = "") String match_url,
                                   @RequestParam(value = "mid", defaultValue = "") String mid,
-                                  @RequestParam(value = "liveSource", defaultValue = "2") String liveSource,
+                                  @RequestParam(value = "liveSource", defaultValue = "2") String liveSourceValue,
                                   @RequestParam(value = "sourceName", defaultValue = "") String sourceName
                                   ){
         List<MatchUrl> matchUrlList = null;
         Map map = new HashMap(16);
-        if(StringUtil.isNotBlank(match_url) && StringUtil.isNotBlank(mid) && StringUtil.isNotBlank(liveSource)
+        if(StringUtil.isNotBlank(match_url) && StringUtil.isNotBlank(mid) && StringUtil.isNotBlank(liveSourceValue)
                 && StringUtil.isNotBlank(sourceName) && !"undefined".equals(match_url)){
             if(sourceName.toLowerCase().contains("cctv")){
                 return new ModelAndView("/biz/cctv5");
-            } else if((LiveSourceConst.DIDIAOKAN_Source.getIndex()+"").equals(liveSource)){
+            } else if((LiveSourceConst.DIDIAOKAN_Source.getIndex()+"").equals(liveSourceValue)){
                 String playSrc = liveService.getMatchLiveUrl(match_url);
                 playSrc = playSrc.substring(playSrc.indexOf("?id=")+"?id=".length());
                 try {
@@ -96,18 +96,25 @@ public class VideoController {
                 map.put("matchUrl", playSrc);
                 System.out.println(playSrc);
                 return new ModelAndView("/biz/play_didiaokan", map);
-            } else if((LiveSourceConst.KUWAN_Source.getIndex()+"").equals(liveSource)){
-                //match_url = match_url.replaceFirst("www","m");
-                HtmlParserTool htmlParserTool = new HtmlParserTool();
-                matchUrlList = htmlParserTool.htmlParserVideo(match_url);
-                //HTML解析
-                map.put("list", matchUrlList);
-                for(MatchUrl matchUrl : matchUrlList){
-                    if(matchUrl.getActive()){
-                        map.put("matchUrl", matchUrl);
+            } else if((LiveSourceConst.KUWAN_Source.getIndex()+"").equals(liveSourceValue)){
+//                //match_url = match_url.replaceFirst("www","m");
+//                HtmlParserTool htmlParserTool = new HtmlParserTool();
+//                matchUrlList = htmlParserTool.htmlParserVideo(match_url);
+//                //HTML解析
+//                map.put("list", matchUrlList);
+//                for(MatchUrl matchUrl : matchUrlList){
+//                    if(matchUrl.getActive()){
+//                        map.put("matchUrl", matchUrl);
+//                    }
+//                }
+                if(match_url.contains("__")){
+                    String[] liveValue = match_url.split("__");
+                    if(liveValue.length > 1){
+                        map.put("vid", liveValue[0]);
+                        map.put("player", liveValue[1]);
                     }
                 }
-                return new ModelAndView("/biz/hello", map);
+                return new ModelAndView("/biz/play_kuwan", map);
             } else {
                 return new ModelAndView("/biz/cctv5");
             }
@@ -176,7 +183,7 @@ public class VideoController {
         //比赛地址,如:jrs中的 http://m.didiaokan.com//e/pptv/pptvw.php?classid=3&id=17979
         if(StringUtil.isNotBlank(match_url)){
             //根据 比赛地址，获得直播源信息如： CCTV5、QQ
-            MatchInfo matchInfo = liveService.getMatchSource(match_url);
+            MatchInfo matchInfo = liveService.getMatchSource(match_url, LiveSource.DIDIAOKAN_Source);
         }
         List<Date> dateList = new ArrayList<Date>();
         Date date = new Date();

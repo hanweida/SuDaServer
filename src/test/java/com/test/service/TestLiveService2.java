@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.suda.pojo.MatchInfo;
 import com.suda.service.LiveService;
 import com.suda.web.ContextHolder;
+import com.suda.web.enum_const.LiveSource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +56,7 @@ public class TestLiveService2 {
         List<Date> dateList = new ArrayList<Date>();
         Date date = new Date();
         dateList.add(date);
-        MatchInfo matchInfo = liveServiceImpl.getMatchSource("http://m.didiaokan.com//a/100209800?classid=1&id=4752");
+        MatchInfo matchInfo = liveServiceImpl.getMatchSource("http://m.didiaokan.com//a/100209800?classid=1&id=4752", LiveSource.DIDIAOKAN_Source);
         System.out.println(matchInfo.toString());
     }
 
