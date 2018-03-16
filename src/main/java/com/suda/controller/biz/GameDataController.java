@@ -47,7 +47,7 @@ public class GameDataController {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
 
-        JSONObject jsonObject = liveService.getMatchState(mid, tabType, homeStr, guestStr);
+        JSONObject jsonObject = liveService.getMatchState(mid, tabType, homeTeamName, guestTeamName);
         //JSONObject jsonObject = JSON.parseObject(str);
         return jsonObject;
     }
