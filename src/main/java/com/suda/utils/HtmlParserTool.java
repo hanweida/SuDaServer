@@ -315,4 +315,9 @@ public class HtmlParserTool implements HtmlPaser{
     public List<MatchInfo> paserHtml(String html, String baseUrl, LiveSource liveSource) {
         return htmlParser(html);
     }
+
+    @Override
+    public List<MatchInfo> paserHtml(String html, String baseUrl, LiveSource liveSource, String homeTeam, String guestTeam) {
+        return htmlParser(html);
+    }
 }

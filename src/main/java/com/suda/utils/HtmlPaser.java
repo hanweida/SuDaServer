@@ -10,4 +10,5 @@ import java.util.List;
  */
 public interface HtmlPaser {
     List<MatchInfo> paserHtml(String html, String baseUrl, LiveSource liveSource);
+    List<MatchInfo> paserHtml(String html, String baseUrl, LiveSource liveSource, String homeTeam, String guestTeam);
 }
