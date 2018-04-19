@@ -202,7 +202,7 @@ public class JsoupUtils implements HtmlPaser {
                     String text = element1.text();
                     matchInfo.setMatch_time(text);
                 }
-                if(matchInfo.getGuest_team().equals(guestTeamName) && matchInfo.getHome_team().equals(homeTeamName)){
+                if(matchInfo.getGuest_team().contains(guestTeamName) && matchInfo.getHome_team().contains(homeTeamName)){
                     //如果参数homeTeam与guestTeam不为空，则返回的是指定比赛信息
                     matchInfoList.add(matchInfo);
                     break;

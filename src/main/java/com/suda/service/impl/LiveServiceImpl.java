@@ -266,8 +266,8 @@ public class LiveServiceImpl extends BaseService implements LiveService {
         long jsStartTime = System.currentTimeMillis();
         if(null != list){
             for(MatchInfo matchInfo : list){
-                if(null != matchInfo && null != matchInfo.getGuest_team() && null != matchInfo.getHome_team() && guestTeamName.contains(matchInfo.getGuest_team())
-                        && homeTeamName.contains(matchInfo.getHome_team()
+                if(null != matchInfo && null != matchInfo.getGuest_team() && null != matchInfo.getHome_team() && matchInfo.getGuest_team().contains(guestTeamName)
+                        && matchInfo.getHome_team().contains(homeTeamName
                 )){
                     //根据比赛地址。请求获得比赛源与比赛直播地址
                     MatchInfo matchInfo1 = getMatchSource( matchInfo.getMatch_url(), liveSource);
