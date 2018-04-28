@@ -249,8 +249,8 @@ public class HttpClientUtil {
 
 			HttpConnectionManagerParams configParams = httpClient.getHttpConnectionManager().getParams();
 			configParams.setConnectionTimeout(5*1000);  //设置请求超时5秒钟 根据业务调整
-			configParams.setSoTimeout(5*1000);  //设置等待数据超时时间2秒钟 根据业务调整
-			httpClient.getParams().setConnectionManagerTimeout(60*1000L);//该值就是连接不够用的时候等待超时时间，一定要设置，而且不能太大 ()
+			configParams.setSoTimeout(2*1000);  //设置等待数据超时时间2秒钟 根据业务调整
+			httpClient.getParams().setConnectionManagerTimeout(1000L);//该值就是连接不够用的时候等待超时时间，一定要设置，而且不能太大 ()
 
 			int code = httpClient.executeMethod(getMethod);
 			//text = getMethod.getResponseBodyAsString();

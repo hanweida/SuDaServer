@@ -22,9 +22,11 @@ import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 
 import static com.suda.web.enum_const.LiveSource.DIDIAOKAN_Source;
 import static com.suda.web.enum_const.LiveSource.KUWAN_Source;
+
 
 /**
  * Created by ES-BF-IT-126 on 2018/2/7.
@@ -210,20 +212,44 @@ public class LiveServiceImpl extends BaseService implements LiveService {
         long totalStartTime = System.currentTimeMillis();
         TencentService tencentService = new TencentService();
         String gson = tencentService.getMatchStat(mid, tabType, new RequestCallBack<MatchStat>() {
+                    //结束门
+                    final CountDownLatch endLatch = new CountDownLatch(2);
                     @Override
-                    public String onSuccess(MatchStat matchStat) {
-                        //酷玩直播源信息
-                        List<MatchInfo> kuwanMatchInfoList = getMatchInfoList(LiveSource.KUWAN_Source, homeTeamName, guestTeamName);
-                        //低调看直播源信息
-                        List<MatchInfo> didiaokanMatchInfoList = getMatchInfoList(DIDIAOKAN_Source, homeTeamName, guestTeamName);
-                        Gson gson = new Gson();
+                    public String onSuccess(final MatchStat matchStat) {
+
                         matchStat.data.mid=mid;
                         //根据比赛列表信息获得比赛url
                         matchStat.data.matchSourceList = new ArrayList<MatchStat.MatchSource>();
-                        getMatchSourceLive(didiaokanMatchInfoList, matchStat, homeTeamName, guestTeamName, mid, LiveSource.DIDIAOKAN_Source);
-                        getMatchSourceLive(kuwanMatchInfoList, matchStat, homeTeamName, guestTeamName, mid, LiveSource.KUWAN_Source);
-                        System.out.println(gson.toJson(matchStat));
-                        return gson.toJson(matchStat) ;
+
+                        Runnable runnable_kuwan = new Runnable() {
+                            @Override
+                            public void run() {
+                                //酷玩直播源信息
+                                List<MatchInfo> kuwanMatchInfoList = getMatchInfoList(LiveSource.KUWAN_Source, homeTeamName, guestTeamName);
+                                getMatchSourceLive(kuwanMatchInfoList, matchStat, homeTeamName, guestTeamName, mid, LiveSource.KUWAN_Source);
+                                endLatch.countDown();
+                            }
+                        };
+
+                        Runnable runnable_didiaokan = new Runnable() {
+                            @Override
+                            public void run() {
+                                //低调看直播源信息
+                                List<MatchInfo> didiaokanMatchInfoList = getMatchInfoList(DIDIAOKAN_Source, homeTeamName, guestTeamName);
+                                getMatchSourceLive(didiaokanMatchInfoList, matchStat, homeTeamName, guestTeamName, mid, LiveSource.DIDIAOKAN_Source);
+                                endLatch.countDown();
+                            }
+                        };
+                        Thread thread_kuwan = new Thread(runnable_kuwan);
+                        Thread thread_didiaokan = new Thread(runnable_didiaokan);
+                        thread_kuwan.start();
+                        thread_didiaokan.start();
+                        try {
+                            endLatch.await();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        return new Gson().toJson(matchStat) ;
                     }
                     @Override
                     public void onFailure(String message) {
@@ -283,7 +309,7 @@ public class LiveServiceImpl extends BaseService implements LiveService {
                 }
             }
         }
-        System.out.println("请求"+liveSource.name()+"getMatchSourceLive 获得直播源与直播地址："+ (System.currentTimeMillis() - jsStartTime)+"ms");
+        //System.out.println("请求"+liveSource.name()+"getMatchSourceLive 获得直播源与直播地址："+ (System.currentTimeMillis() - jsStartTime)+"ms");
     }
     /**
      * 根据直播源获得直播数据
@@ -305,7 +331,7 @@ public class LiveServiceImpl extends BaseService implements LiveService {
         if(StringUtil.isNotBlank(url)){
             //解析页面获得比赛信息
             List<MatchInfo> matchInfoList = resolveMatchBySourceTeamName(liveSource, url, homeTeamName, guestTeamName);
-            System.out.println("请求"+liveSource.name()+"MatchInfoList："+ (System.currentTimeMillis() - jsStartTime)+"ms");
+            //System.out.println("请求"+liveSource.name()+"MatchInfoList："+ (System.currentTimeMillis() - jsStartTime)+"ms");
             return matchInfoList;
         } else {
             return null;
