@@ -114,6 +114,7 @@ public class VideoController {
                 }
                 return new ModelAndView("/biz/play_kuwan", map);
             } else {
+                System.out.println("invoke");
                 return new ModelAndView("/biz/cctv5");
             }
         } else {
