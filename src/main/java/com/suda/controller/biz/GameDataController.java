@@ -36,19 +36,7 @@ public class GameDataController {
                           @RequestParam(value = "homeTeamName", defaultValue = "") String homeTeamName,
                           @RequestParam(value = "guestTeamName", defaultValue = "") String guestTeamName
                           ){
-        //TODO 此处由于没有NBA比赛，所以用 json串代替测试
-        String homeStr = null;
-        String guestStr = null;
-        try {
-            homeStr = new String(homeTeamName.getBytes("iso-8859-1"), "utf-8");
-            guestStr = new String(guestTeamName.getBytes("iso-8859-1"), "utf-8");
-        } catch (UnsupportedEncodingException e) {
-            System.out.println("3434");
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-
         JSONObject jsonObject = liveService.getMatchState(mid, tabType, homeTeamName, guestTeamName);
-        //JSONObject jsonObject = JSON.parseObject(str);
         return jsonObject;
     }
 }

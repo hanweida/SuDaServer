@@ -45,31 +45,10 @@ import java.util.Map;
 @Controller
 @RequestMapping(value="/video")
 public class VideoController {
+    Logger logUtil = LogUtil.getInfoLog();
 
     @Autowired
     private LiveService liveService;
-
-    @RequestMapping(value = "/geturl", method = {RequestMethod.GET})
-    @ResponseBody
-    public ModelAndView getUrl(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
-                               @RequestParam(value = "url") String match_url){
-//        if(StringUtil.isNotBlank(match_url)){
-//            match_url = match_url.replaceFirst("www","m");
-//        }
-        //System.out.println(match_url);
-        //System.out.println(match_url);
-        //HTML解析
-        HtmlParserTool htmlParserTool = new HtmlParserTool();
-        List<MatchUrl> matchUrlList = htmlParserTool.htmlParserVideo(match_url);
-        Map map = new HashMap();
-        map.put("list", matchUrlList);
-        for(MatchUrl matchUrl : matchUrlList){
-            if(matchUrl.getActive()){
-                map.put("matchUrl", matchUrl);
-            }
-        }
-        return new ModelAndView("/biz/hello", map);
-    }
 
     @RequestMapping(value = "/getnbaurl", method = {RequestMethod.GET})
     @ResponseBody
@@ -92,60 +71,28 @@ public class VideoController {
                     e.printStackTrace();
                 }
                 map.put("matchUrl", playSrc);
-                System.out.println(playSrc);
-                return new ModelAndView("/biz/play_didiaokan", map);
+                logUtil.info("[getNBAUrl-didiaokan-QQ-playSrc] "+ playSrc);
+                return new ModelAndView("/biz/play_didiaokan.jsp", map);
             } else if((LiveSourceConst.KUWAN_Source.getIndex()+"").equals(liveSourceValue)){
-//                //match_url = match_url.replaceFirst("www","m");
-//                HtmlParserTool htmlParserTool = new HtmlParserTool();
-//                matchUrlList = htmlParserTool.htmlParserVideo(match_url);
-//                //HTML解析
-//                map.put("list", matchUrlList);
-//                for(MatchUrl matchUrl : matchUrlList){
-//                    if(matchUrl.getActive()){
-//                        map.put("matchUrl", matchUrl);
-//                    }
-//                }
                 if(match_url.contains("__")){
                     String[] liveValue = match_url.split("__");
                     if(liveValue.length > 1){
                         map.put("vid", liveValue[0]);
                         map.put("player", liveValue[1]);
+                        logUtil.info("[getNBAUrl-KUWAN-vid-player] "+ liveValue[0]+" "+liveValue[1]);
+                    } else {
+                        logUtil.info("[getNBAUrl-KUWAN-vid-player] 缺少 vid-player");
                     }
                 }
                 return new ModelAndView("/biz/play_kuwan", map);
             } else {
-                System.out.println("invoke");
-                return new ModelAndView("/biz/cctv5");
+                logUtil.info("[getNBAUrl-didiaokan-CCTV5]");
+                return new ModelAndView("/biz/cctv5.html");
             }
         } else {
-            return new ModelAndView("/biz/cctv5");
+            logUtil.info("[getNBAUrl] 参数不全");
+            return new ModelAndView("/biz/cctv5.html");
         }
-    }
-
-    @RequestMapping(value = "/gamelist", method = {RequestMethod.GET})
-    @ResponseBody
-    public JSONArray getGameList(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse){
-        Logger logger = LogUtil.getInfoLog();
-        logger.info("Test Info Log");
-        String baseUrl = "http://www.kuwantiyu.com";
-        HttpClientUtil httpClientUtil = new HttpClientUtil();
-        String html = httpClientUtil.sendDataGet(baseUrl);
-        HtmlPaser htmlPaser = new JsoupUtils();
-        List<MatchInfo> matchInfoList = htmlPaser.paserHtml(html, baseUrl, LiveSource.KUWAN_Source);
-        JSONArray jsonArray = new JSONArray();
-        JSONObject jsonObject = null;
-        for(MatchInfo matchInfo : matchInfoList){
-            jsonObject = new JSONObject();
-            jsonObject.put("match_time", matchInfo.getMatch_time());
-            jsonObject.put("match_name", matchInfo.getMatch_name());
-            jsonObject.put("home_team", matchInfo.getHome_team());
-            jsonObject.put("guest_team", matchInfo.getGuest_team());
-            jsonObject.put("home_logo_url", matchInfo.getHome_logo_url());
-            jsonObject.put("guest_logo_url", matchInfo.getGuest_logo_url());
-            jsonObject.put("match_url", matchInfo.getMatch_url());
-            jsonArray.add(jsonObject);
-        }
-        return jsonArray;
     }
 
     @RequestMapping(value = "/gamenbalist", method = {RequestMethod.GET})
