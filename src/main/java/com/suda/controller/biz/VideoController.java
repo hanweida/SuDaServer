@@ -72,7 +72,7 @@ public class VideoController {
                 }
                 map.put("matchUrl", playSrc);
                 logUtil.info("[getNBAUrl-didiaokan-QQ-playSrc] "+ playSrc);
-                return new ModelAndView("/biz/play_didiaokan.jsp", map);
+                return new ModelAndView("/biz/play_didiaokan", map);
             } else if((LiveSourceConst.KUWAN_Source.getIndex()+"").equals(liveSourceValue)){
                 if(match_url.contains("__")){
                     String[] liveValue = match_url.split("__");
@@ -87,11 +87,11 @@ public class VideoController {
                 return new ModelAndView("/biz/play_kuwan", map);
             } else {
                 logUtil.info("[getNBAUrl-didiaokan-CCTV5]");
-                return new ModelAndView("/biz/cctv5.html");
+                return new ModelAndView("/biz/cctv5");
             }
         } else {
             logUtil.info("[getNBAUrl] 参数不全");
-            return new ModelAndView("/biz/cctv5.html");
+            return new ModelAndView("/biz/cctv5");
         }
     }
 
