@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>   
 <configuration>
     <!-- 日志目录 -->
-    <property name="LOG_HOME" value="d:/data/log1" />
+    <property name="LOG_HOME" value="/data/log1" />
        
     <!-- 控制台输出 -->   
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">   
