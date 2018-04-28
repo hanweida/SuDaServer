@@ -44,13 +44,7 @@
 <body style="margin: 0;padding: 0;border: 0">
 <div class="container">
   <div class="main">
-    <div class="wrap">
-        <div class="title">
-            <img class="icon" src="/static/img/icon.png">
-            <div><font>速达体育</font></div>
-        </div>
-            <div id="showplayer">
-            </div>
+        <div id="showplayer">
         </div>
         <div class="clear"></div>
     </div>
