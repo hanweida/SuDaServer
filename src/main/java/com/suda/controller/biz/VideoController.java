@@ -83,7 +83,7 @@ public class VideoController {
         Map map = new HashMap(16);
         if(StringUtil.isNotBlank(match_url) && StringUtil.isNotBlank(mid) && StringUtil.isNotBlank(liveSourceValue)
                 && StringUtil.isNotBlank(sourceName) && !"undefined".equals(match_url)){
-            if((LiveSourceConst.DIDIAOKAN_Source.getIndex()+"").equals(liveSourceValue)){
+            if((LiveSourceConst.DIDIAOKAN_Source.getIndex()+"").equals(liveSourceValue) && !sourceName.contains("CCTV")){
                 String playSrc = liveService.getMatchLiveUrl(match_url);
                 playSrc = playSrc.substring(playSrc.indexOf("?id=")+"?id=".length());
                 try {
