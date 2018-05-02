@@ -269,7 +269,7 @@ public class JsoupUtils implements HtmlPaser {
                 }
 
                 //过滤英文源，因为英文源不能播放
-                if(!text.contains("英文") && !text.contains("cctv")){
+                if(!text.contains("英文") && !text.toLowerCase().contains("cctv")){
                     map.put(text, baseUrl+href);
                 }
                 //map.put(text, baseUrl+href);
